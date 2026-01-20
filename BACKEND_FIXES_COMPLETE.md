@@ -184,7 +184,7 @@ Returns stats for dashboard
 ## 🔑 Environment Variables Required
 
 ```
-MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/?appName=udyogini
+MONGO_URI=mongodb+srv://<USERNAME>:<PASSWORD>@<CLUSTER_NAME>.mongodb.net/<DATABASE_NAME>?retryWrites=true&w=majority
 JWT_SECRET=your_secret_key_here
 PORT=5000
 ```
