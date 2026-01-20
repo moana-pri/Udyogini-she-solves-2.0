@@ -1,11 +1,12 @@
 "use client"
 
 import Image from "next/image"
+import Link from "next/link"
 import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Star, MapPin, Phone, Heart, MessageCircle } from "lucide-react"
+import { Star, MapPin, Phone, Heart, MessageCircle, Calendar } from "lucide-react"
 
 interface Business {
   id: number
@@ -18,6 +19,7 @@ interface Business {
   reviews: number
   phone: string
   image: string
+  _id?: string
 }
 
 interface BusinessCardProps {
@@ -97,6 +99,18 @@ export function BusinessCard({ business, isFavorite: initialFavorite = false }: 
         </div>
 
         <div className="flex gap-2">
+          <Link
+            href={`/customer/booking?businessId=${business._id || business.id}`}
+            className="flex-1"
+          >
+            <Button 
+              size="sm" 
+              className="w-full rounded-lg bg-pink-600 text-white hover:bg-pink-700"
+            >
+              <Calendar className="mr-1.5 h-3.5 w-3.5" />
+              Book Now
+            </Button>
+          </Link>
           <Button 
             onClick={handleCall}
             size="sm" 
