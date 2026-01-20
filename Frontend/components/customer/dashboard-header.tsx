@@ -5,6 +5,7 @@ import Image from "next/image"
 import { useState, useEffect } from "react"
 import { Menu, X, LogOut, User, Bell, Home, Search, History, Heart, Star, Settings } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { useLanguage } from "@/lib/language-context"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,16 +38,18 @@ const languages = [
 
 
 export function CustomerDashboardHeader({ activeTab, onTabChange }: CustomerDashboardHeaderProps) {
+  const { language, setLanguage } = useLanguage()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [userName, setUserName] = useState("User")
+  const [userInitials, setUserInitials] = useState("US")
 
-  
-
-        const [language, setLanguage] = useState("en")
-
-useEffect(() => {
-  const savedLang = localStorage.getItem("language")
-  if (savedLang) setLanguage(savedLang)
-}, [])
+  useEffect(() => {
+    const savedName = localStorage.getItem("userName")
+    if (savedName) {
+      setUserName(savedName)
+      setUserInitials(savedName.slice(0, 2).toUpperCase())
+    }
+  }, [])
 
 
   return (
@@ -99,8 +102,6 @@ useEffect(() => {
       variant={language === lang.code ? "default" : "ghost"}
       onClick={() => {
         setLanguage(lang.code)
-        localStorage.setItem("language", lang.code)
-        window.location.reload()
       }}
     >
       {lang.label}
@@ -119,9 +120,9 @@ useEffect(() => {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="flex items-center gap-2 rounded-full px-2">
                 <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-primary/10 text-primary">AN</AvatarFallback>
+                  <AvatarFallback className="bg-primary/10 text-primary">{userInitials}</AvatarFallback>
                 </Avatar>
-                <span className="font-medium">Anita</span>
+                <span className="font-medium">{userName}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
@@ -168,10 +169,10 @@ useEffect(() => {
           <nav className="container mx-auto flex flex-col gap-2 px-4 py-4">
             <div className="flex items-center gap-3 rounded-lg bg-muted/50 p-3 mb-2">
               <Avatar className="h-10 w-10">
-                <AvatarFallback className="bg-primary/10 text-primary">AN</AvatarFallback>
+                <AvatarFallback className="bg-primary/10 text-primary">{userInitials}</AvatarFallback>
               </Avatar>
               <div>
-                <p className="font-medium text-foreground">Anita</p>
+                <p className="font-medium text-foreground">{userName}</p>
                 <p className="text-sm text-muted-foreground">Customer Account</p>
               </div>
             </div>
