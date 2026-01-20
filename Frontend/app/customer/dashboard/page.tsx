@@ -15,7 +15,6 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Sparkles, TrendingUp, Star, Heart, Calendar, ArrowRight } from "lucide-react"
 import { useSearchParams } from "next/navigation"
-import Loading from "./loading"
 import { useEffect } from "react"
 
 
@@ -474,23 +473,6 @@ export default function CustomerDashboard() {
                     </CardContent>
                   </Card>
                 )}
-              </div>
-                    <CardContent className="flex items-center justify-between p-4">
-                      <div>
-                        <p className="font-medium text-foreground">{booking.name}</p>
-                        <p className="text-sm text-muted-foreground">{booking.service}</p>
-                        <p className="text-xs text-muted-foreground mt-1">{booking.date}</p>
-                      </div>
-                      <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                        booking.status === "completed" 
-                          ? "bg-green-100 text-green-700" 
-                          : "bg-blue-100 text-blue-700"
-                      }`}>
-                        {booking.status === "completed" ? "Completed" : "Upcoming"}
-                      </span>
-                    </CardContent>
-                  </Card>
-                ))}
               </div>
             </div>
           </div>

@@ -36,6 +36,10 @@ const bookingSchema = new mongoose.Schema(
     businessName: String,
     businessPhone: String,
     declinedReason: String,
+    reviewed: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

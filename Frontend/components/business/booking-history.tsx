@@ -22,14 +22,53 @@ interface Booking {
 export function BookingHistory() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const fetchBookings = () => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/bookings/business`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    })
-      .then((res) => res.json())
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    console.log('Fetching bookings from:', `${apiUrl}/api/bookings/business`);
+    
+    // First test if the server is accessible
+    fetch(`${apiUrl}/`)
+      .then(res => {
+        console.log('Server test response:', res.status);
+        if (!res.ok) {
+          throw new Error(`Server not accessible: ${res.status}`);
+        }
+        return res.text();
+      })
+      .then(() => {
+        // If server is accessible, then fetch bookings
+        return fetch(`${apiUrl}/api/bookings/business`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        })
+      })
+      .then((res) => {
+        console.log('Response status:', res.status);
+        console.log('Response headers:', res.headers);
+        if (res.ok) {
+          return res.json();
+        } else {
+          return res.text().then(text => {
+            console.error('Error response body:', text);
+            const errorData = JSON.parse(text);
+            
+            // Check if it's a role mismatch error
+            if (errorData.message && errorData.message.includes('Access denied')) {
+              console.error('Role mismatch detected - redirecting to customer dashboard');
+              setAuthError('You are logged in as a customer. Redirecting to customer dashboard...');
+              setTimeout(() => {
+                window.location.href = '/customer/dashboard';
+              }, 2000);
+              return;
+            }
+            
+            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+          });
+        }
+      })
       .then((data) => {
         if (Array.isArray(data)) {
           setBookings(data);
@@ -40,7 +79,12 @@ export function BookingHistory() {
       })
       .catch((error) => {
         console.error("Error fetching bookings:", error);
+        if (error.name === 'TypeError' && error.message.includes('fetch')) {
+          console.error("Network error - backend might not be accessible");
+        }
+        // Show user-friendly error message
         setBookings([]);
+        setLoading(false);
       })
       .finally(() => setLoading(false));
   };
@@ -51,9 +95,10 @@ export function BookingHistory() {
 
   const handleStatusUpdate = async (bookingId: string, action: 'accept' | 'decline' | 'complete') => {
     try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
       const endpoint = action === 'accept' ? 'accept' : action === 'decline' ? 'decline' : 'complete';
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/bookings/${bookingId}/${endpoint}`, {
-        method: action === 'decline' ? 'PUT' : 'PUT',
+      const res = await fetch(`${apiUrl}/api/bookings/${bookingId}/${endpoint}`, {
+        method: 'PUT',
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -78,7 +123,12 @@ export function BookingHistory() {
         <CardTitle>Bookings ({bookings.length})</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {bookings.length === 0 ? (
+        {authError && (
+          <div className="rounded-lg bg-yellow-50 p-4 text-yellow-800">
+            {authError}
+          </div>
+        )}
+        {bookings.length === 0 && !authError ? (
           <p className="text-gray-500">No bookings yet</p>
         ) : (
           bookings.map((b: any) => (

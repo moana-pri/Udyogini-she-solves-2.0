@@ -15,6 +15,20 @@ router.post("/", auth("customer"), async (req, res) => {
       return res.status(400).json({ message: "businessId and rating are required" });
     }
 
+    // If bookingId is provided, verify the booking is completed
+    if (bookingId) {
+      const booking = await Booking.findById(bookingId);
+      if (!booking) {
+        return res.status(404).json({ message: "Booking not found" });
+      }
+      if (booking.status !== "completed") {
+        return res.status(400).json({ message: "Can only review completed bookings" });
+      }
+      if (booking.customerId.toString() !== req.user.id.toString()) {
+        return res.status(403).json({ message: "You can only review your own bookings" });
+      }
+    }
+
     const review = await Review.create({
       customerId: req.user.id,
       businessId,
@@ -22,6 +36,11 @@ router.post("/", auth("customer"), async (req, res) => {
       rating,
       comment: comment || "",
     });
+
+    // Mark booking as reviewed
+    if (bookingId) {
+      await Booking.findByIdAndUpdate(bookingId, { reviewed: true });
+    }
 
     // Update business average rating
     const reviews = await Review.find({ businessId });

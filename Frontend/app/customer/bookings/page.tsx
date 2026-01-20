@@ -252,12 +252,14 @@ function BookingCard({ booking, onCall, onWhatsApp, onCancel, language, isLoadin
 
 export default function CustomerBookingsPage() {
   const { language } = useLanguage()
-  const t = translations[language as "EN" | "HI"]
+  const t = translations[(language || "EN") as "EN" | "HI"] || translations["EN"]
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
+    setMounted(true)
     fetchBookings()
   }, [])
 
@@ -275,11 +277,11 @@ export default function CustomerBookingsPage() {
         const data = await res.json()
         setBookings(data)
       } else {
-        setError(t.error)
+        setError(t?.error || "Error loading bookings")
       }
     } catch (err) {
       console.error("Error fetching bookings:", err)
-      setError(t.error)
+      setError(t?.error || "Error loading bookings")
     }
     setLoading(false)
   }
@@ -322,7 +324,7 @@ export default function CustomerBookingsPage() {
         <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 py-12 px-4">
           <div className="max-w-4xl mx-auto">
             <div className="text-center py-12">
-              <p className="text-gray-600">{t.loading}</p>
+              <p className="text-gray-600">{t?.loading || "Loading bookings..."}</p>
             </div>
           </div>
         </div>

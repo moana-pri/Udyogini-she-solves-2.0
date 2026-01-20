@@ -7,13 +7,15 @@ export function DashboardOverview() {
   const [stats, setStats] = useState<any>(null);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/business/stats`, {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    fetch(`${apiUrl}/api/business/stats`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     })
       .then(res => res.json())
-      .then(setStats);
+      .then(setStats)
+      .catch(err => console.error('Error fetching stats:', err));
   }, []);
 
   if (!stats) return <p>Loading...</p>;

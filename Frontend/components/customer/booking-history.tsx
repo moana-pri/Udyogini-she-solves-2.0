@@ -21,7 +21,8 @@ export function BookingHistory({ onReviewClick }: BookingHistoryProps) {
   const [submittingReview, setSubmittingReview] = useState(false);
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/bookings/customer`, {
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+    fetch(`${apiUrl}/api/bookings/customer`, {
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
@@ -29,6 +30,10 @@ export function BookingHistory({ onReviewClick }: BookingHistoryProps) {
       .then((res) => res.json())
       .then((data) => {
         setBookings(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Error fetching bookings:', err);
         setLoading(false);
       });
   }, []);
@@ -41,7 +46,8 @@ export function BookingHistory({ onReviewClick }: BookingHistoryProps) {
 
     setSubmittingReview(true);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reviews`, {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+      const res = await fetch(`${apiUrl}/api/reviews`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -225,25 +231,5 @@ export function BookingHistory({ onReviewClick }: BookingHistoryProps) {
         </DialogContent>
       </Dialog>
     </>
-  );
-}
-                  Leave Review
-                </Button>
-              )}
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() =>
-                  window.open(`tel:${b.businessId.phone}`, "_self")
-                }
-              >
-                <Phone className="h-4 w-4 mr-1" />
-                Call
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
-    </div>
   );
 }

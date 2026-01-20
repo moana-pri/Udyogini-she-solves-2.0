@@ -43,7 +43,8 @@ export function BusinessSidebar({ activeSection, onSectionChange, isOpen, onClos
         const token = localStorage.getItem("token")
         if (!token) return
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/business/profile`, {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const response = await fetch(`${apiUrl}/api/business/profile`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -52,7 +53,7 @@ export function BusinessSidebar({ activeSection, onSectionChange, isOpen, onClos
         if (response.ok) {
           const data = await response.json()
           const businessName = data.businessName || "UDYOGINI"
-          const ownerName = data.ownerName || "Owner"
+          const ownerName = data.ownerName || data.ownerId?.fullName || "Owner"
           const initials = businessName
             .split(" ")
             .map((word: string) => word[0])
@@ -65,6 +66,9 @@ export function BusinessSidebar({ activeSection, onSectionChange, isOpen, onClos
             ownerName,
             initials
           })
+          console.log('Business profile loaded:', { businessName, ownerName })
+        } else {
+          console.error('Failed to fetch business profile:', response.status)
         }
       } catch (error) {
         console.error("Error fetching business profile:", error)

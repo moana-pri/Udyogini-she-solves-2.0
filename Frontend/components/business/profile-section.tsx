@@ -74,18 +74,19 @@ export function ProfileSection() {
           if (businessRes.ok) {
             businessData = await businessRes.json()
           } else {
-            console.error("Business profile not found")
+            // Business profile not found - this is normal for new business owners
+            businessData = {}
           }
         } catch (err) {
           console.error("Error fetching business profile:", err)
         }
 
         const profileData = {
-          fullName: userData.fullName || businessData.ownerName || "Business Owner",
+          fullName: userData.fullName || (businessData as any)?.ownerName || "Business Owner",
           phone: userData.phone || "",
-          businessName: businessData.businessName || "",
-          businessType: businessData.businessType || "",
-          ownerName: businessData.ownerName || userData.fullName || "",
+          businessName: (businessData as any)?.businessName || "",
+          businessType: (businessData as any)?.businessType || "",
+          ownerName: (businessData as any)?.ownerName || userData.fullName || "",
         }
         
         setProfile(profileData)
@@ -145,6 +146,7 @@ export function ProfileSection() {
           phone: userData.phone,
           businessName: editedProfile.businessName,
           businessType: editedProfile.businessType,
+          ownerName: userData.fullName,
         }
         setProfile(updatedProfile)
         setIsEditing(false)

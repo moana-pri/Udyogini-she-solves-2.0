@@ -21,14 +21,12 @@ export function ReviewsSection() {
           return
         }
 
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/reviews/owner/reviews`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        )
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const res = await fetch(`${apiUrl}/api/reviews/owner/reviews`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
 
         if (res.ok) {
           const data = await res.json()
@@ -133,7 +131,7 @@ export function ReviewsSection() {
                         <p className="font-medium text-foreground">{review.customerId?.fullName || "Customer"}</p>
                         <p className="text-xs text-muted-foreground">
                           {new Date(review.createdAt).toLocaleDateString('en-US', { 
-                            year: 'short', 
+                            year: 'numeric', 
                             month: 'short', 
                             day: 'numeric' 
                           })}

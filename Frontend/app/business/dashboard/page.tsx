@@ -29,7 +29,8 @@ export default function BusinessDashboard() {
 
       try {
         // Verify user is a business owner
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify`, {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+        const res = await fetch(`${apiUrl}/api/auth/verify`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -41,7 +42,9 @@ export default function BusinessDashboard() {
         }
 
         const userData = await res.json()
+        console.log('User data:', userData);
         if (userData.role !== "business_owner") {
+          console.log('User is not a business owner, redirecting to customer dashboard');
           router.push("/customer/dashboard")
           return
         }
@@ -50,13 +53,14 @@ export default function BusinessDashboard() {
         setIsLoading(false)
 
         // Fetch stats after authentication
-        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/business/stats`, {
+        fetch(`${apiUrl}/api/business/stats`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         })
           .then((res) => res.json())
-          .then(setStats);
+          .then(setStats)
+          .catch(err => console.error('Error fetching stats:', err));
       } catch (err) {
         console.error("Auth check failed:", err)
         router.push("/login")
