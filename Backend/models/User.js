@@ -17,6 +17,11 @@ const userSchema = new mongoose.Schema({
     required: true
   },
 
+  preferredLanguage: {
+    type: String,
+    default: "en"
+  },
+
   resetPasswordToken: String,
   resetPasswordExpire: Date
 }, { timestamps: true });
