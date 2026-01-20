@@ -1,31 +1,48 @@
-import express from "express";
-import auth from "../middleware/auth.js";
-import Booking from "../models/Booking.js";
-import Business from "../models/Business.js";
+import mongoose from "mongoose";
 
-
-
-const router = express.Router();
-
-router.get("/stats", auth("business_owner"), async (req, res) => {
-  try {
-    const business = await Business.findOne({ ownerId: req.user.id });
-    if (!business) return res.status(404).json({ message: "Business not found" });
-
-    const bookings = await Booking.find({ businessId: business._id });
-
-    const totalBookings = bookings.length;
-    const completed = bookings.filter(b => b.status === "completed").length;
-
-    res.json({
-      totalBookings,
-      completedBookings: completed,
-      pendingBookings: totalBookings - completed,
-    });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+const businessSchema = new mongoose.Schema({
+  ownerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
+  businessName: {
+    type: String,
+    required: true
+  },
+  businessType: {
+    type: String,
+    required: true
+  },
+  description: {
+    type: String
+  },
+  location: {
+    address: { type: String },
+    type: { type: String, enum: ['Point'], default: 'Point' },
+    coordinates: { type: [Number], index: '2dsphere' } // [lng, lat]
+  },
+  workingHours: {
+    type: String
+  },
+  priceRange: {
+    type: String
+  },
+  phone: {
+    type: String
+  },
+  averageRating: {
+    type: Number,
+    default: 0
+  },
+  totalReviews: {
+    type: Number,
+    default: 0
+  },
+  profileViews: {
+    type: Number,
+    default: 0
   }
-});
+}, { timestamps: true });
 
-
-export default router;
+export default mongoose.model("Business", businessSchema);
