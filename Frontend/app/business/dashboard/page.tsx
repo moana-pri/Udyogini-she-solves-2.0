@@ -22,8 +22,8 @@ useEffect(() => {
       Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
   })
-    .then((res) => res.json())
-    .then(setStats);
+     .then(res => res.json())
+    .then(data => setFilteredBusinesses(data));
 }, []);
 
 

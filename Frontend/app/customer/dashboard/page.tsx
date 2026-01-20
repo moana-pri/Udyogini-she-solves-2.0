@@ -16,81 +16,18 @@ import Loading from "./loading"
 import { useEffect } from "react"
 
 
-// Sample business data
-const sampleBusinesses = [
-  {
-    id: 1,
-    name: "Priya's Beauty Studio",
-    type: "Beauty Parlour",
-    location: "Koramangala",
-    distance: "1.2 km",
-    priceRange: "moderate",
-    rating: 4.8,
-    reviews: 124,
-    phone: "+919876543210",
-    image: "/images/hero-illustration.jpg",
-  },
-  {
-    id: 2,
-    name: "Lakshmi's Kitchen",
-    type: "Home Food",
-    location: "Indiranagar",
-    distance: "2.5 km",
-    priceRange: "budget",
-    rating: 4.9,
-    reviews: 89,
-    phone: "+919876543211",
-    image: "/images/hero-illustration.jpg",
-  },
-  {
-    id: 3,
-    name: "Meera's Boutique",
-    type: "Tailoring",
-    location: "Jayanagar",
-    distance: "1.8 km",
-    priceRange: "moderate",
-    rating: 4.6,
-    reviews: 67,
-    phone: "+919876543212",
-    image: "/images/hero-illustration.jpg",
-  },
-  {
-    id: 4,
-    name: "Asha's Mehendi Art",
-    type: "Mehendi Art",
-    location: "HSR Layout",
-    distance: "3.1 km",
-    priceRange: "premium",
-    rating: 4.7,
-    reviews: 156,
-    phone: "+919876543213",
-    image: "/images/hero-illustration.jpg",
-  },
-  {
-    id: 5,
-    name: "Sunita's Craft Studio",
-    type: "Handicrafts",
-    location: "Whitefield",
-    distance: "5.2 km",
-    priceRange: "moderate",
-    rating: 4.5,
-    reviews: 43,
-    phone: "+919876543214",
-    image: "/images/hero-illustration.jpg",
-  },
-  {
-    id: 6,
-    name: "Kavita's Yoga Center",
-    type: "Wellness",
-    location: "Marathahalli",
-    distance: "4.0 km",
-    priceRange: "budget",
-    rating: 4.9,
-    reviews: 112,
-    phone: "+919876543215",
-    image: "/images/hero-illustration.jpg",
-  },
-]
+useEffect(() => {
+  fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/business/customer`, {
+    headers: {
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
+    },
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      setFilteredBusinesses(data);
+    });
+}, []);
+
 
 export default function CustomerDashboard() {
 

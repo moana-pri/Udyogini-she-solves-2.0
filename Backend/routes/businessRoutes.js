@@ -2,8 +2,84 @@ import express from "express"
 import Business from "../models/Business.js"
 import auth from "../middleware/auth.js"
 import { getBusinessDashboard } from "../controllers/dashboardController.js";
+import { translateText } from "../utils/translate.js";
+
 
 const router = express.Router()
+
+/**
+ * GET BUSINESSES FOR CUSTOMER (WITH TRANSLATION)
+ */
+router.get("/customer", auth("customer"), async (req, res) => {
+  try {
+    const customerLanguage = req.user.preferredLanguage || "en";
+
+    const businesses = await Business.find();
+
+    const result = await Promise.all(
+      businesses.map(async (b) => {
+        let description = b.businessDescription.text;
+
+        if (b.businessDescription.language !== customerLanguage) {
+          description = await translateText(
+            b.businessDescription.text,
+            customerLanguage
+          );
+        }
+
+        return {
+          _id: b._id,
+          businessName: b.businessName,
+          businessType: b.businessType,
+          location: b.location,
+          priceRange: b.priceRange,
+          phone: b.phone,
+          description, // 👈 THIS IS WHAT CUSTOMER SEES
+        };
+      })
+    );
+
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+
+router.get("/:id/customer", auth("customer"), async (req, res) => {
+  try {
+    const customerLanguage = req.user.preferredLanguage || "en";
+    const business = await Business.findById(req.params.id);
+
+    if (!business) {
+      return res.status(404).json({ message: "Business not found" });
+    }
+
+    let description = business.businessDescription.text;
+
+    if (business.businessDescription.language !== customerLanguage) {
+      description = await translateText(
+        business.businessDescription.text,
+        customerLanguage
+      );
+    }
+
+    res.json({
+      _id: business._id,
+      businessName: business.businessName,
+      businessType: business.businessType,
+      location: business.location,
+      workingHours: business.workingHours,
+      priceRange: business.priceRange,
+      phone: business.phone,
+      description, // 👈 translated
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+
 
 // UPDATE BUSINESS PROFILE  👇 THIS IS WHERE IT GOES
 router.put("/profile", auth("business_owner"), async (req, res) => {

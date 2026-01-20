@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Star, MapPin, Phone, Heart, MessageCircle } from "lucide-react"
+import Link from "next/link";
 
 interface Business {
   id: number
@@ -51,6 +52,8 @@ export function BusinessCard({ business, isFavorite: initialFavorite = false }: 
   }
 
   return (
+    <Link href={`/customer/business/${business._id}`}>
+  <div className="cursor-pointer">
     <Card className="group overflow-hidden border-border/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
       <div className="relative aspect-[4/3] overflow-hidden">
         <Image
@@ -85,6 +88,11 @@ export function BusinessCard({ business, isFavorite: initialFavorite = false }: 
           </div>
         </div>
 
+<p className="mt-2 text-sm text-muted-foreground">
+  {business.description}
+</p>
+
+
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-1">
             <Star className="h-4 w-4 fill-primary text-primary" />
@@ -117,5 +125,7 @@ export function BusinessCard({ business, isFavorite: initialFavorite = false }: 
         </div>
       </CardContent>
     </Card>
+    </div>
+    </Link>
   )
 }

@@ -40,8 +40,11 @@ export const registerBusiness = async (req, res) => {
   location,
   workingHours,
   priceRange,
-  description,
-  preferredLanguage
+
+  businessDescription: {
+    text: description,          // text owner typed
+    language: preferredLanguage // owner-selected language
+  },
 } = req.body;
 
     const exists = await User.findOne({ phone });
@@ -62,15 +65,15 @@ export const registerBusiness = async (req, res) => {
   ownerId: user._id,
   businessName,
   businessType,
-  location: {
-    address: location,
-    lat: latitude,
-    lng: longitude,
-  },
+  location,
   workingHours,
   priceRange,
-  description,
+  businessDescription: {
+    text: description,
+    language: preferredLanguage,
+  },
 });
+
 
     res.status(201).json({ message: "Business registered, pending approval" });
   } catch (err) {
