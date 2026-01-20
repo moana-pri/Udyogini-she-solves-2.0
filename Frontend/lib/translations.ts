@@ -3,7 +3,7 @@ export const translations: Record<string, Record<string, string>> = {
     // Menu & Navigation
     home: "Home",
     search: "Search Services",
-    bookings: "Booking History",
+    bookings: "Bookings",
     favorites: "Favorites",
     reviews: "Reviews",
     profile: "Profile",
@@ -22,6 +22,11 @@ export const translations: Record<string, Record<string, string>> = {
     view_profile: "View Profile",
     use_current_location: "Use Current Location",
     show_map: "Show Map",
+    accept: "Accept",
+    decline: "Decline",
+    complete: "Complete",
+    leave_review: "Leave Review",
+    review_submitted: "Review submitted",
 
     // Labels
     my_bookings: "My Bookings",
@@ -37,6 +42,21 @@ export const translations: Record<string, Record<string, string>> = {
     time: "Time",
     price: "Price",
     rating: "Rating",
+    customer: "Customer",
+    notes: "Notes",
+    your_feedback: "Your Feedback",
+    share_experience: "Share your experience...",
+    based_on_reviews: "Based on {count} reviews",
+    customer_reviews: "Customer Reviews",
+    no_bookings_yet: "No bookings yet",
+    no_reviews_yet: "No reviews yet",
+    total_bookings: "Total Bookings",
+    completed_bookings: "Completed Bookings",
+    pending_bookings: "Pending Bookings",
+    customer_interactions: "Customer Interactions",
+    view_and_connect: "View and connect with your customers",
+    your_customers: "Your Customers",
+    booking_count: "{count} booking{count, plural, one{} other{s}} have{count, plural, one{has} other{have}} booked your service",
 
     // Status
     completed: "Completed",
@@ -44,17 +64,39 @@ export const translations: Record<string, Record<string, string>> = {
     upcoming: "Upcoming",
     cancelled: "Cancelled",
     confirmed: "Confirmed",
+    declined: "Declined",
+
+    // Business Registration
+    business_name: "Business Name",
+    owner_name: "Owner Name",
+    business_type: "Business Type",
+    working_hours: "Working Hours",
+    price_range: "Price Range",
+    business_description: "Business Description",
+
+    // Booking
+    select_service: "Select Service",
+    select_date: "Select Date",
+    select_time: "Select Time",
+    additional_notes: "Additional Notes",
+    booking_successful: "Booking Successful",
+    booking_failed: "Booking Failed",
+
+    // Search
+    nearby_businesses: "Nearby Businesses",
+    search_location: "Search Location",
+    current_location: "Current Location",
   },
 
   hi: {
     // Menu & Navigation
     home: "होम",
     search: "सेवाएं खोजें",
-    bookings: "बुकिंग इतिहास",
+    bookings: "बुकिंग",
     favorites: "पसंदीदा",
     reviews: "समीक्षाएं",
     profile: "प्रोफ़ाइल",
-    logout: "लॉगआउट",
+    logout: "लॉग आउट",
     dashboard: "डैशबोर्ड",
     customers: "ग्राहक",
 
@@ -69,6 +111,11 @@ export const translations: Record<string, Record<string, string>> = {
     view_profile: "प्रोफ़ाइल देखें",
     use_current_location: "मौजूदा स्थान का उपयोग करें",
     show_map: "मानचित्र दिखाएं",
+    accept: "स्वीकार करें",
+    decline: "अस्वीकार करें",
+    complete: "पूर्ण करें",
+    leave_review: "समीक्षा दें",
+    review_submitted: "समीक्षा जमा की गई",
 
     // Labels
     my_bookings: "मेरी बुकिंग",
@@ -77,13 +124,28 @@ export const translations: Record<string, Record<string, string>> = {
     location: "स्थान",
     address: "पता",
     business_owner: "व्यवसाय मालिक",
-    phone: "फ़ोन",
+    phone: "फोन",
     password: "पासवर्ड",
     email: "ईमेल",
     date: "तारीख",
     time: "समय",
     price: "कीमत",
     rating: "रेटिंग",
+    customer: "ग्राहक",
+    notes: "नोट्स",
+    your_feedback: "आपकी प्रतिक्रिया",
+    share_experience: "अपना अनुभव साझा करें...",
+    based_on_reviews: "{count} समीक्षाओं के आधार पर",
+    customer_reviews: "ग्राहक समीक्षा",
+    no_bookings_yet: "अभी तक कोई बुकिंग नहीं",
+    no_reviews_yet: "अभी तक कोई समीक्षा नहीं",
+    total_bookings: "कुल बुकिंग",
+    completed_bookings: "पूर्ण बुकिंग",
+    pending_bookings: "लंबित बुकिंग",
+    customer_interactions: "ग्राहक इंटरैक्शन",
+    view_and_connect: "अपने ग्राहकों को देखें और जुड़ें",
+    your_customers: "आपके ग्राहक",
+    booking_count: "{count} बुकिंग{count, plural, one{} other{s}} ने आपकी सेवा बुक की है",
 
     // Status
     completed: "पूर्ण",
@@ -91,6 +153,7 @@ export const translations: Record<string, Record<string, string>> = {
     upcoming: "आगामी",
     cancelled: "रद्द",
     confirmed: "पुष्टि",
+    declined: "अस्वीकृत",
 
     // Business Registration
     business_name: "व्यवसाय का नाम",
@@ -109,7 +172,7 @@ export const translations: Record<string, Record<string, string>> = {
     booking_failed: "बुकिंग विफल",
 
     // Search
-    nearby_businesses: "आस-पास के व्यवसाय",
+    nearby_businesses: "निकट के व्यवसाय",
     search_location: "स्थान खोजें",
     current_location: "वर्तमान स्थान",
   },
@@ -120,9 +183,9 @@ export const translations: Record<string, Record<string, string>> = {
     search: "सेवा शोधा",
     bookings: "बुकिंग हिस्ट्री",
     favorites: "आवडते",
-    reviews: "समीक्षा",
+    reviews: "रिव्ह्यू",
     profile: "प्रोफाइल",
-    logout: "लॉगआउट",
+    logout: "लॉग आउट",
     dashboard: "डॅशबोर्ड",
     customers: "ग्राहक",
 
@@ -137,6 +200,11 @@ export const translations: Record<string, Record<string, string>> = {
     view_profile: "प्रोफाइल पहा",
     use_current_location: "सध्याचे स्थान वापरा",
     show_map: "नकाशा दाखवा",
+    accept: "स्वीकारा",
+    decline: "नामंजूर करा",
+    complete: "पूर्ण करा",
+    leave_review: "रिव्ह्यू द्या",
+    review_submitted: "रिव्ह्यू सादर केले",
 
     // Labels
     my_bookings: "माझी बुकिंग",
@@ -152,6 +220,21 @@ export const translations: Record<string, Record<string, string>> = {
     time: "वेळ",
     price: "किंमत",
     rating: "रेटिंग",
+    customer: "ग्राहक",
+    notes: "नोट्स",
+    your_feedback: "तुमची प्रतिक्रिया",
+    share_experience: "तुमचा अनुभव शेअर करा...",
+    based_on_reviews: "{count} रिव्ह्यूंवर आधारित",
+    customer_reviews: "ग्राहक रिव्ह्यू",
+    no_bookings_yet: "अजूनही कोणतेही बुकिंग नाही",
+    no_reviews_yet: "अजूनही कोणतेही रिव्ह्यू नाही",
+    total_bookings: "एकूण बुकिंग",
+    completed_bookings: "पूर्ण बुकिंग",
+    pending_bookings: "प्रलंबित बुकिंग",
+    customer_interactions: "ग्राहक संवाद",
+    view_and_connect: "आपल्या ग्राहकांना पाहा आणि जोडा",
+    your_customers: "तुमचे ग्राहक",
+    booking_count: "{count} बुकिंग{count, plural, one{} other{s}} नी तुमची सेवा बुक केली आहे",
 
     // Status
     completed: "पूर्ण",
@@ -159,6 +242,28 @@ export const translations: Record<string, Record<string, string>> = {
     upcoming: "आगामी",
     cancelled: "रद्द",
     confirmed: "पुष्टी",
+    declined: "नामंजूर",
+
+    // Business Registration
+    business_name: "व्यवसायाचे नाव",
+    owner_name: "मालकाचे नाव",
+    business_type: "व्यवसाय प्रकार",
+    working_hours: "कार्य वेळ",
+    price_range: "किंमत श्रेणी",
+    business_description: "व्यवसाय वर्णन",
+
+    // Booking
+    select_service: "सेवा निवडा",
+    select_date: "तारीख निवडा",
+    select_time: "वेळ निवडा",
+    additional_notes: "अतिरिक्त नोट्स",
+    booking_successful: "बुकिंग यशस्वी",
+    booking_failed: "बुकिंग अयशस्वी",
+
+    // Search
+    nearby_businesses: "जवळच्या व्यवसाय",
+    search_location: "स्थान शोधा",
+    current_location: "सध्याचे स्थान",
   },
 }
 

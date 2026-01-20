@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, X, Clock } from "lucide-react";
+import { useLanguage } from "@/lib/language-context";
 
 interface Booking {
   _id: string;
@@ -23,6 +24,7 @@ export function BookingHistory() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   const fetchBookings = () => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
@@ -120,7 +122,7 @@ export function BookingHistory() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Bookings ({bookings.length})</CardTitle>
+        <CardTitle>{t('bookings')} ({bookings.length})</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         {authError && (
@@ -129,15 +131,15 @@ export function BookingHistory() {
           </div>
         )}
         {bookings.length === 0 && !authError ? (
-          <p className="text-gray-500">No bookings yet</p>
+          <p className="text-gray-500">{t('no_bookings_yet')}</p>
         ) : (
           bookings.map((b: any) => (
             <div key={b._id} className="border p-4 rounded-lg space-y-2 bg-gray-50">
-              <p><b>Customer:</b> {b.customerId?.fullName || "Unknown"}</p>
-              <p><b>Phone:</b> {b.customerId?.phone || "N/A"}</p>
-              <p><b>Service:</b> {b.service || "N/A"}</p>
-              <p><b>Date & Time:</b> {b.date} {b.time}</p>
-              {b.notes && <p><b>Notes:</b> {b.notes}</p>}
+              <p><b>{t('customer')}:</b> {b.customerId?.fullName || "Unknown"}</p>
+              <p><b>{t('phone')}:</b> {b.customerId?.phone || "N/A"}</p>
+              <p><b>{t('service')}:</b> {b.service || "N/A"}</p>
+              <p><b>{t('date')} & {t('time')}:</b> {b.date} {b.time}</p>
+              {b.notes && <p><b>{t('notes')}:</b> {b.notes}</p>}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <b>Status:</b>
@@ -162,7 +164,7 @@ export function BookingHistory() {
                         className="bg-green-600 hover:bg-green-700"
                       >
                         <Check className="h-4 w-4 mr-1" />
-                        Accept
+                        {t('accept')}
                       </Button>
                       <Button
                         size="sm"
@@ -170,7 +172,7 @@ export function BookingHistory() {
                         onClick={() => handleStatusUpdate(b._id, 'decline')}
                       >
                         <X className="h-4 w-4 mr-1" />
-                        Decline
+                        {t('decline')}
                       </Button>
                     </>
                   )}
@@ -181,7 +183,7 @@ export function BookingHistory() {
                       className="bg-blue-600 hover:bg-blue-700"
                     >
                       <Clock className="h-4 w-4 mr-1" />
-                      Complete
+                      {t('complete')}
                     </Button>
                   )}
                 </div>

@@ -13,6 +13,8 @@ import {
   X
 } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { LanguageSelector } from "@/components/ui/language-selector"
+import { useLanguage } from "@/lib/language-context"
 
 interface BusinessSidebarProps {
   activeSection: string
@@ -22,11 +24,11 @@ interface BusinessSidebarProps {
 }
 
 const menuItems = [
-  { id: "overview", label: "Dashboard", icon: LayoutDashboard },
-  { id: "bookings", label: "Bookings", icon: Calendar },
-  { id: "customers", label: "Customers", icon: Users },
-  { id: "reviews", label: "Reviews", icon: Star },
-  { id: "profile", label: "Profile", icon: User },
+  { id: "overview", label: "dashboard", icon: LayoutDashboard },
+  { id: "bookings", label: "bookings", icon: Calendar },
+  { id: "customers", label: "customers", icon: Users },
+  { id: "reviews", label: "reviews", icon: Star },
+  { id: "profile", label: "profile", icon: User },
 ]
 
 export function BusinessSidebar({ activeSection, onSectionChange, isOpen, onClose }: BusinessSidebarProps) {
@@ -36,6 +38,7 @@ export function BusinessSidebar({ activeSection, onSectionChange, isOpen, onClos
     initials: "U"
   })
   const [loading, setLoading] = useState(true)
+  const { t } = useLanguage()
 
   useEffect(() => {
     const fetchBusinessProfile = async () => {
@@ -107,13 +110,16 @@ export function BusinessSidebar({ activeSection, onSectionChange, isOpen, onClos
               {businessProfile.businessName.substring(0, 12)}
             </span>
           </Link>
-          <button 
-            onClick={onClose}
-            className="rounded-lg p-1 hover:bg-sidebar-accent md:hidden"
-            aria-label="Close sidebar"
-          >
-            <X className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <LanguageSelector />
+            <button 
+              onClick={onClose}
+              className="rounded-lg p-1 hover:bg-sidebar-accent md:hidden"
+              aria-label="Close sidebar"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
         {/* Business Profile Summary */}
@@ -143,7 +149,7 @@ export function BusinessSidebar({ activeSection, onSectionChange, isOpen, onClos
               )}
             >
               <item.icon className="h-5 w-5" />
-              {item.label}
+              {t(item.label)}
             </button>
           ))}
         </nav>
@@ -155,7 +161,7 @@ export function BusinessSidebar({ activeSection, onSectionChange, isOpen, onClos
             className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
           >
             <LogOut className="h-5 w-5" />
-            Sign Out
+            {t('logout')}
           </Link>
         </div>
       </aside>

@@ -9,6 +9,7 @@ import { CustomerInteractions } from "@/components/business/customer-interaction
 import { ReviewsSection } from "@/components/business/reviews-section"
 import { ProfileSection } from "@/components/business/profile-section"
 import { Menu, X } from "lucide-react"
+import { LanguageProvider } from "@/lib/language-context"
 
 
 export default function BusinessDashboard() {
@@ -105,33 +106,35 @@ export default function BusinessDashboard() {
   
 
   return (
-    <div className="flex min-h-screen bg-background">
-      {/* Mobile Menu Button */}
-      <button
-        onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="fixed left-4 top-4 z-50 flex h-10 w-10 items-center justify-center rounded-lg bg-card shadow-md md:hidden"
-        aria-label="Toggle sidebar"
-      >
-        {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-      </button>
+    <LanguageProvider>
+      <div className="flex min-h-screen bg-background">
+        {/* Mobile Menu Button */}
+        <button
+          onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+          className="fixed left-4 top-4 z-50 flex h-10 w-10 items-center justify-center rounded-lg bg-card shadow-md md:hidden"
+          aria-label="Toggle sidebar"
+        >
+          {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+        </button>
 
-      {/* Sidebar */}
-      <BusinessSidebar 
-        activeSection={activeSection} 
-        onSectionChange={(section) => {
-          setActiveSection(section)
-          setIsSidebarOpen(false)
-        }}
-        isOpen={isSidebarOpen}
-        onClose={() => setIsSidebarOpen(false)}
-      />
-      
-      {/* Main Content */}
-      <main className="flex-1 overflow-auto p-4 pt-16 md:p-8 md:pt-8">
-        <div className="mx-auto max-w-6xl">
-          {renderSection()}
-        </div>
-      </main>
-    </div>
+        {/* Sidebar */}
+        <BusinessSidebar 
+          activeSection={activeSection} 
+          onSectionChange={(section) => {
+            setActiveSection(section)
+            setIsSidebarOpen(false)
+          }}
+          isOpen={isSidebarOpen}
+          onClose={() => setIsSidebarOpen(false)}
+        />
+        
+        {/* Main Content */}
+        <main className="flex-1 overflow-auto p-4 pt-16 md:p-8 md:pt-8">
+          <div className="mx-auto max-w-6xl">
+            {renderSection()}
+          </div>
+        </main>
+      </div>
+    </LanguageProvider>
   )
 }
