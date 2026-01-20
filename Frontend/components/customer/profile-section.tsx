@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,13 +10,38 @@ import { User, Phone, MapPin, Mail, Edit2, Save, X, Camera } from "lucide-react"
 
 export function ProfileSection() {
   const [isEditing, setIsEditing] = useState(false)
+  const [userPhone, setUserPhone] = useState("+91 9876543210")
+  const [userEmail, setUserEmail] = useState("")
+  const [userLocation, setUserLocation] = useState("")
+  const [userName, setUserName] = useState("User")
+  const [userInitials, setUserInitials] = useState("US")
+  
   const [profile, setProfile] = useState({
-    name: "Anita Sharma",
-    phone: "+91 98765 43210",
-    email: "anita.sharma@email.com",
-    location: "Koramangala, Bangalore",
+    name: "User",
+    phone: "+91 9876543210",
+    email: "user@email.com",
+    location: "Bangalore",
   })
   const [editedProfile, setEditedProfile] = useState(profile)
+
+  // Load user data from localStorage on mount
+  useEffect(() => {
+    const savedName = localStorage.getItem("userName")
+    const savedPhone = localStorage.getItem("phone")
+    
+    if (savedName) {
+      setUserName(savedName)
+      setUserInitials(savedName.slice(0, 2).toUpperCase())
+      setProfile(prev => ({ ...prev, name: savedName }))
+      setEditedProfile(prev => ({ ...prev, name: savedName }))
+    }
+    
+    if (savedPhone) {
+      setUserPhone(savedPhone.startsWith("+91") ? savedPhone : `+91 ${savedPhone}`)
+      setProfile(prev => ({ ...prev, phone: savedPhone.startsWith("+91") ? savedPhone : `+91 ${savedPhone}` }))
+      setEditedProfile(prev => ({ ...prev, phone: savedPhone.startsWith("+91") ? savedPhone : `+91 ${savedPhone}` }))
+    }
+  }, [])
 
   const handleSave = () => {
     setProfile(editedProfile)

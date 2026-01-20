@@ -14,28 +14,92 @@ export function ProfileSection() {
     priceRange: "",
     description: "",
   })
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/business/profile`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-    })
-      .then((res) => res.json())
-      .then(setForm)
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem("token")
+        if (!token) {
+          setError("No authentication token found")
+          setLoading(false)
+          return
+        }
+
+        console.log("🔄 Fetching business profile...")
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/business/profile`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        console.log("📡 Response status:", res.status)
+
+        if (!res.ok) {
+          const errorData = await res.json()
+          console.error("❌ API Error:", errorData)
+          setError(`Could not fetch profile: ${errorData.message || res.statusText}`)
+          setLoading(false)
+          return
+        }
+
+        const data = await res.json()
+        console.log("📊 Profile data received:", data)
+        
+        if (data && typeof data === 'object') {
+          setForm({
+            businessName: data.businessName || "",
+            businessType: data.businessType || "",
+            location: data.location?.address || "",
+            workingHours: data.workingHours || "",
+            priceRange: data.priceRange || "",
+            description: data.description || "",
+          })
+          console.log("✅ Profile form updated successfully")
+        } else {
+          console.log("⚠️ Received invalid data structure")
+        }
+        setLoading(false)
+      } catch (err) {
+        console.error("❌ Error fetching profile:", err)
+        setError(`Error loading profile: ${err instanceof Error ? err.message : "Unknown error"}`)
+        setLoading(false)
+      }
+    }
+
+    fetchProfile()
   }, [])
 
   const saveProfile = async () => {
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/business/profile`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      body: JSON.stringify(form),
-    })
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/business/profile`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(form),
+      })
 
-    alert("Profile updated successfully")
+      if (!res.ok) {
+        alert("Error updating profile")
+        return
+      }
+
+      alert("Profile updated successfully")
+    } catch (err) {
+      console.error("Error saving profile:", err)
+      alert("Error saving profile")
+    }
+  }
+
+  if (loading) {
+    return <div className="p-4">Loading profile...</div>
+  }
+
+  if (error) {
+    return <div className="p-4 text-red-600">{error}</div>
   }
 
   return (

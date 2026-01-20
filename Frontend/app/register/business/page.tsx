@@ -7,6 +7,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
+import { LocationPicker } from "@/components/common/LocationPicker"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -49,8 +50,8 @@ export default function BusinessRegistrationPage() {
     password: "",
     confirmPassword: "",
     preferredLanguage: "en",
-    latitude: null,
-    longitude: null,
+    latitude: null as number | null,
+    longitude: null as number | null,
   })
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -61,21 +62,37 @@ export default function BusinessRegistrationPage() {
     return
   }
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/auth/register/business`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    }
-  )
-
-  if (!res.ok) {
-    alert("Registration failed")
+  if (!form.latitude || !form.longitude) {
+    alert("Please select a location on the map")
     return
   }
 
-  router.push("/login")
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/api/auth/register/business`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      }
+    )
+
+    const data = await res.json()
+
+    if (!res.ok) {
+      const errorMsg = data.message || data.error || "Unknown error"
+      console.error("Registration error:", { status: res.status, data })
+      alert(`Registration failed: ${errorMsg}`)
+      return
+    }
+
+    console.log("Registration success:", data)
+    alert("Registration successful! Redirecting to login...")
+    router.push("/login")
+  } catch (error) {
+    console.error("Registration error:", error)
+    alert(`Error: ${error instanceof Error ? error.message : "Unknown error"}`)
+  }
 }
 
 
@@ -176,16 +193,16 @@ export default function BusinessRegistrationPage() {
                   </Select>
                 </div>
 
-                <MapPicker
-  onLocationSelect={(loc: any) =>
-    setForm({
-      ...form,
-      latitude: loc.lat,
-      longitude: loc.lng,
-    })
-  }
-/>
-
+                <LocationPicker
+                  onLocationSelect={(lat, lng, address) =>
+                    setForm({
+                      ...form,
+                      latitude: lat,
+                      longitude: lng,
+                      location: address,
+                    })
+                  }
+                />
 
                 <div className="space-y-2">
                   <Label htmlFor="location">Location <span className="text-primary">*</span></Label>
