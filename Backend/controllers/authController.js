@@ -14,15 +14,23 @@ export const registerCustomer = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await User.create({
-  fullName,
-  phone,
-  password: hashedPassword,
-  role: "customer",
-  preferredLanguage
-});
+    const user = await User.create({
+      fullName,
+      phone,
+      password: hashedPassword,
+      role: "customer",
+      preferredLanguage
+    });
 
-    res.status(201).json({ message: "Customer registered successfully" });
+    res.status(201).json({ 
+      message: "Customer registered successfully",
+      user: {
+        id: user._id,
+        fullName: user.fullName,
+        phone: user.phone,
+        role: user.role
+      }
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -32,50 +40,76 @@ export const registerCustomer = async (req, res) => {
 export const registerBusiness = async (req, res) => {
   try {
     const {
-  fullName,
-  phone,
-  password,
-  businessName,
-  businessType,
-  location,
-  workingHours,
-  priceRange,
-  description,
-  preferredLanguage
-} = req.body;
+      fullName,
+      phone,
+      password,
+      businessName,
+      businessType,
+      location,
+      latitude,
+      longitude,
+      workingHours,
+      priceRange,
+      description,
+      preferredLanguage
+    } = req.body;
+
+    console.log("📝 Registering business:", { fullName, businessName, phone });
 
     const exists = await User.findOne({ phone });
 
-    if (exists) return res.status(400).json({ message: "User already exists" });
+    if (exists) {
+      console.log("❌ User already exists:", phone);
+      return res.status(400).json({ message: "User already exists" });
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
-      fullName,
+      fullName, // Owner's personal name
       phone,
       password: hashedPassword,
       role: "business_owner",
       preferredLanguage
     });
 
-   await Business.create({
-  ownerId: user._id,
-  businessName,
-  businessType,
-  location: {
-    address: location,
-    lat: latitude,
-    lng: longitude,
-  },
-  workingHours,
-  priceRange,
-  description,
-});
+    console.log("✅ User created:", user._id, "Name:", fullName);
 
-    res.status(201).json({ message: "Business registered, pending approval" });
+    const business = await Business.create({
+      ownerId: user._id,
+      businessName, // Business/shop name - should be different from owner's name
+      businessType,
+      location: {
+        address: location,
+        type: 'Point',
+        coordinates: longitude && latitude ? [longitude, latitude] : null, // [lng, lat]
+      },
+      workingHours,
+      priceRange,
+      description,
+      phone
+    });
+
+    console.log("✅ Business created:", business._id, "Business Name:", businessName);
+
+    console.log("✅ Business created:", business._id);
+
+    res.status(201).json({ 
+      message: "Business registered, pending approval",
+      user: {
+        id: user._id,
+        fullName: user.fullName,
+        phone: user.phone,
+        role: user.role
+      },
+      business: {
+        id: business._id,
+        businessName: business.businessName
+      }
+    });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: err.message });
+    console.error("❌ Registration error:", err.message);
+    res.status(500).json({ message: err.message, error: err.toString() });
   }
 };
 
@@ -103,7 +137,9 @@ if (!user) {
       user: {
         id: user._id,
         fullName: user.fullName,
-        role: user.role
+        phone: user.phone,
+        role: user.role,
+        preferredLanguage: user.preferredLanguage
       }
     });
   } catch (err) {
