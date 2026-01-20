@@ -12,6 +12,7 @@ import { ReviewsSection } from "@/components/customer/reviews-section"
 import { ProfileSection } from "@/components/customer/profile-section"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Sparkles, TrendingUp, Star, Heart, Calendar, ArrowRight } from "lucide-react"
 import { useSearchParams } from "next/navigation"
 import Loading from "./loading"
@@ -204,14 +205,55 @@ export default function CustomerDashboard() {
   const [filteredBusinesses, setFilteredBusinesses] = useState<any[]>([])
   const [pendingReviewId, setPendingReviewId] = useState<string | null>(null)
   const [userName, setUserName] = useState("User")
+  const [stats, setStats] = useState({
+    bookings: 0,
+    favorites: 0,
+    reviews: 0,
+    businessesSupported: 0
+  })
+  const [recentBookings, setRecentBookings] = useState<any[]>([])
   const searchParams = useSearchParams()
 
-  // Load user name from localStorage
+  // Load user name and stats from API
   useEffect(() => {
     const savedName = localStorage.getItem("userName")
     if (savedName) {
       setUserName(savedName)
     }
+
+    // Fetch real booking data
+    const fetchBookingStats = async () => {
+      try {
+        const token = localStorage.getItem("token")
+        if (!token) return
+
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/bookings/customer`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (res.ok) {
+          const bookings = await res.json()
+          // Count unique businesses
+          const uniqueBusinesses = new Set(bookings.map((b: any) => b.businessId._id || b.businessId))
+          const completedBookings = bookings.filter((b: any) => b.status === "completed").length
+          
+          setStats({
+            bookings: bookings.length,
+            favorites: 0, // Can be updated if you implement favorites
+            reviews: completedBookings,
+            businessesSupported: uniqueBusinesses.size
+          })
+          
+          setRecentBookings(bookings.slice(0, 3))
+        }
+      } catch (err) {
+        console.error("Error fetching booking stats:", err)
+      }
+    }
+
+    fetchBookingStats()
   }, [])
 
 
@@ -308,7 +350,7 @@ export default function CustomerDashboard() {
                     <Calendar className="h-6 w-6 text-primary" />
                   </div>
                   <div>
-                    <p className="text-2xl font-semibold text-foreground">12</p>
+                    <p className="text-2xl font-semibold text-foreground">{stats.bookings}</p>
                     <p className="text-sm text-muted-foreground">{t("my_bookings", language)}</p>
                   </div>
                 </CardContent>
@@ -320,7 +362,7 @@ export default function CustomerDashboard() {
                     <Heart className="h-6 w-6 text-pink-600" />
                   </div>
                   <div>
-                    <p className="text-2xl font-semibold text-foreground">5</p>
+                    <p className="text-2xl font-semibold text-foreground">{stats.favorites}</p>
                     <p className="text-sm text-muted-foreground">Favorites</p>
                   </div>
                 </CardContent>
@@ -332,7 +374,7 @@ export default function CustomerDashboard() {
                     <Star className="h-6 w-6 text-amber-600" />
                   </div>
                   <div>
-                    <p className="text-2xl font-semibold text-foreground">8</p>
+                    <p className="text-2xl font-semibold text-foreground">{stats.reviews}</p>
                     <p className="text-sm text-muted-foreground">Reviews Given</p>
                   </div>
                 </CardContent>
@@ -344,7 +386,7 @@ export default function CustomerDashboard() {
                     <TrendingUp className="h-6 w-6 text-green-600" />
                   </div>
                   <div>
-                    <p className="text-2xl font-semibold text-foreground">7</p>
+                    <p className="text-2xl font-semibold text-foreground">{stats.businessesSupported}</p>
                     <p className="text-sm text-muted-foreground">Women Supported</p>
                   </div>
                 </CardContent>
@@ -398,15 +440,41 @@ export default function CustomerDashboard() {
               </div>
               
               <div className="grid gap-4 sm:grid-cols-2">
-                {[
-                  { name: "Priya's Beauty Studio", service: "Bridal Makeup", date: "Dec 28", status: "completed" },
-                  { name: "Lakshmi's Kitchen", service: "Party Catering", date: "Jan 5", status: "upcoming" },
-                ].map((booking, index) => (
-                  <Card 
-                    key={booking.name} 
-                    className="border-border/50 card-hover-lift cursor-pointer"
-                    onClick={() => setActiveTab("bookings")}
-                  >
+                {recentBookings.length > 0 ? (
+                  recentBookings.map((booking: any) => (
+                    <Card 
+                      key={booking._id} 
+                      className="border-border/50 card-hover-lift cursor-pointer"
+                      onClick={() => setActiveTab("bookings")}
+                    >
+                      <CardContent className="p-4 space-y-3">
+                        <div className="flex items-start justify-between">
+                          <h3 className="font-semibold text-foreground">{booking.businessId?.businessName || "Business"}</h3>
+                          <Badge 
+                            className={
+                              booking.status === "completed" 
+                                ? "bg-green-100 text-green-700" 
+                                : booking.status === "confirmed"
+                                ? "bg-blue-100 text-blue-700"
+                                : "bg-yellow-100 text-yellow-700"
+                            }
+                          >
+                            {booking.status}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{booking.service}</p>
+                        <p className="text-sm text-muted-foreground">{booking.date} at {booking.time}</p>
+                      </CardContent>
+                    </Card>
+                  ))
+                ) : (
+                  <Card className="border-border/50">
+                    <CardContent className="p-4 text-center">
+                      <p className="text-muted-foreground">No bookings yet. Start booking services!</p>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
                     <CardContent className="flex items-center justify-between p-4">
                       <div>
                         <p className="font-medium text-foreground">{booking.name}</p>
@@ -442,7 +510,7 @@ export default function CustomerDashboard() {
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {filteredBusinesses.map((business, index) => (
                     <div 
-                      key={business.id} 
+                      key={business._id || business.id || `business-${index}`}
                       className="animate-fade-in-up"
                       style={{ animationDelay: `${index * 100}ms` }}
                     >

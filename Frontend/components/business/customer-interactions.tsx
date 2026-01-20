@@ -1,54 +1,93 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Users, MessageCircle, Phone, Calendar } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
-const customers = [
-  {
-    id: 1,
-    name: "Anita Sharma",
-    phone: "+91 98765 43210",
-    totalVisits: 12,
-    lastVisit: "Jan 19, 2026",
-    initials: "AS",
-  },
-  {
-    id: 2,
-    name: "Priya Patel",
-    phone: "+91 87654 32109",
-    totalVisits: 8,
-    lastVisit: "Jan 15, 2026",
-    initials: "PP",
-  },
-  {
-    id: 3,
-    name: "Kavitha Reddy",
-    phone: "+91 76543 21098",
-    totalVisits: 15,
-    lastVisit: "Jan 12, 2026",
-    initials: "KR",
-  },
-  {
-    id: 4,
-    name: "Meera Singh",
-    phone: "+91 65432 10987",
-    totalVisits: 5,
-    lastVisit: "Jan 10, 2026",
-    initials: "MS",
-  },
-  {
-    id: 5,
-    name: "Lakshmi Nair",
-    phone: "+91 54321 09876",
-    totalVisits: 20,
-    lastVisit: "Jan 8, 2026",
-    initials: "LN",
-  },
-]
+interface Customer {
+  id: string
+  name: string
+  phone: string
+  totalVisits: number
+  lastVisit: string
+  initials: string
+}
 
 export function CustomerInteractions() {
+  const [customers, setCustomers] = useState<Customer[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        const token = localStorage.getItem("token")
+        if (!token) {
+          setLoading(false)
+          return
+        }
+
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/bookings/business`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+
+        if (res.ok) {
+          const bookings = await res.json()
+          
+          // Group bookings by customer
+          const customerMap = new Map<string, any>()
+          
+          bookings.forEach((booking: any) => {
+            const customerId = booking.customerId?._id || booking.customerId
+            if (!customerMap.has(customerId)) {
+              customerMap.set(customerId, {
+                id: customerId,
+                name: booking.customerName || booking.customerId?.fullName || "Unknown Customer",
+                phone: booking.customerPhone || booking.customerId?.phone || "",
+                totalVisits: 1,
+                lastVisit: new Date(booking.createdAt).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "short",
+                  day: "numeric",
+                }),
+                initials: (booking.customerName || "?").split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2),
+              })
+            } else {
+              const customer = customerMap.get(customerId)
+              customer.totalVisits += 1
+              customer.lastVisit = new Date(booking.createdAt).toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })
+            }
+          })
+          
+          const customerList = Array.from(customerMap.values()).sort((a, b) => 
+            new Date(b.lastVisit).getTime() - new Date(a.lastVisit).getTime()
+          )
+          
+          setCustomers(customerList)
+        } else {
+          setError("Failed to load customers")
+        }
+      } catch (err) {
+        console.error("Error fetching customers:", err)
+        setError("Error loading customers")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchCustomers()
+  }, [])
   const handleCall = (phone: string) => {
     window.open(`tel:${phone}`, "_self")
   }
@@ -77,57 +116,77 @@ export function CustomerInteractions() {
             Your Customers
           </CardTitle>
           <CardDescription>
-            {customers.length} customers have visited your business
+            {loading ? "Loading customers..." : `${customers.length} customer${customers.length !== 1 ? "s have" : " has"} booked your service`}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {customers.map((customer) => (
-              <div 
-                key={customer.id}
-                className="flex flex-col gap-4 rounded-xl border border-border/50 bg-card p-4 sm:flex-row sm:items-center sm:justify-between"
-              >
-                <div className="flex items-center gap-4">
-                  <Avatar className="h-12 w-12">
-                    <AvatarFallback className="bg-primary/10 text-primary">
-                      {customer.initials}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-medium text-foreground">{customer.name}</p>
-                    <p className="text-sm text-muted-foreground">{customer.phone}</p>
-                    <div className="mt-1 flex items-center gap-4 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        {customer.totalVisits} visits
-                      </span>
-                      <span>Last: {customer.lastVisit}</span>
+          {error && (
+            <div className="rounded-lg bg-red-50 p-4 text-red-700">
+              {error}
+            </div>
+          )}
+          
+          {loading && (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">Loading customer data...</p>
+            </div>
+          )}
+          
+          {!loading && customers.length === 0 && !error && (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">No bookings yet. Your customers will appear here.</p>
+            </div>
+          )}
+          
+          {!loading && customers.length > 0 && (
+            <div className="space-y-4">
+              {customers.map((customer) => (
+                <div 
+                  key={customer.id}
+                  className="flex flex-col gap-4 rounded-xl border border-border/50 bg-card p-4 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div className="flex items-center gap-4">
+                    <Avatar className="h-12 w-12">
+                      <AvatarFallback className="bg-primary/10 text-primary">
+                        {customer.initials}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-medium text-foreground">{customer.name}</p>
+                      <p className="text-sm text-muted-foreground">{customer.phone}</p>
+                      <div className="mt-1 flex items-center gap-4 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          {customer.totalVisits} booking{customer.totalVisits !== 1 ? "s" : ""}
+                        </span>
+                        <span>Last: {customer.lastVisit}</span>
+                      </div>
                     </div>
                   </div>
+                  <div className="flex gap-2">
+                    <Button 
+                      size="sm"
+                      onClick={() => handleCall(customer.phone)}
+                      className="bg-green-600 hover:bg-green-700"
+                      disabled={!customer.phone}
+                    >
+                      <Phone className="h-4 w-4 mr-1.5" />
+                      Call
+                    </Button>
+                    <Button 
+                      size="sm"
+                      onClick={() => handleWhatsApp(customer.phone, customer.name)}
+                      className="bg-blue-600 hover:bg-blue-700"
+                      disabled={!customer.phone}
+                    >
+                      <MessageCircle className="h-4 w-4 mr-1.5" />
+                      WhatsApp
+                    </Button>
+                  </div>
                 </div>
-                
-                <div className="flex gap-2">
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    onClick={() => handleCall(customer.phone)}
-                    className="rounded-lg border-primary bg-transparent text-primary hover:bg-primary hover:text-primary-foreground"
-                  >
-                    <Phone className="mr-1.5 h-3.5 w-3.5" />
-                    Call
-                  </Button>
-                  <Button 
-                    size="sm"
-                    onClick={() => handleWhatsApp(customer.phone, customer.name)}
-                    className="rounded-lg bg-green-500 text-white hover:bg-green-600"
-                  >
-                    <MessageCircle className="mr-1.5 h-3.5 w-3.5" />
-                    WhatsApp
-                  </Button>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

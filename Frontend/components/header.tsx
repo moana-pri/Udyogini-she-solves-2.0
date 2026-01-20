@@ -5,6 +5,7 @@ import Image from "next/image"
 import { useState } from "react"
 import { Menu, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { LanguageSwitcher } from "@/components/common/language-switcher"
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -41,6 +42,7 @@ export function Header() {
           >
             About
           </Link>
+          <LanguageSwitcher />
           <Link href="/login">
             <Button 
               variant="outline" 
@@ -79,6 +81,7 @@ export function Header() {
             >
               About
             </Link>
+            <LanguageSwitcher />
             <Link href="/login" onClick={() => setIsMenuOpen(false)}>
               <Button 
                 variant="outline" 

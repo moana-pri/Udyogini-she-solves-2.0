@@ -12,15 +12,30 @@ const bookingSchema = new mongoose.Schema(
       ref: "Business",
       required: true,
     },
-    service: String,
-    date: String,
-    time: String,
+    service: {
+      type: String,
+      required: true,
+    },
+    date: {
+      type: String,
+      required: true,
+    },
+    time: {
+      type: String,
+      required: true,
+    },
     price: Number,
+    notes: String,
     status: {
       type: String,
-      enum: ["pending", "confirmed", "completed", "cancelled"],
+      enum: ["pending", "confirmed", "completed", "cancelled", "declined"],
       default: "pending",
     },
+    customerPhone: String,
+    customerName: String,
+    businessName: String,
+    businessPhone: String,
+    declinedReason: String,
   },
   { timestamps: true }
 );

@@ -6,6 +6,7 @@ import authRoutes from "./routes/authRoutes.js";
 import bookingRoutes from "./routes/bookingRoutes.js";
 import businessRoutes from "./routes/businessRoutes.js"
 import reviewRoutes from "./routes/reviewRoutes.js";
+import translationRoutes from "./routes/translationRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -20,6 +21,7 @@ mongoose.connect(process.env.MONGO_URI)
 app.use("/api/auth", authRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/translate", translationRoutes);
 
 app.use("/api/business", businessRoutes);
 

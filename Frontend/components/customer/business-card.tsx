@@ -12,7 +12,7 @@ interface Business {
   id: number
   name: string
   type: string
-  location: string
+  location: string | { address: string; coordinates?: [number, number] }
   distance: string
   priceRange: string
   rating: number
@@ -20,6 +20,8 @@ interface Business {
   phone: string
   image: string
   _id?: string
+  businessName?: string
+  businessType?: string
 }
 
 interface BusinessCardProps {
@@ -29,6 +31,18 @@ interface BusinessCardProps {
 
 export function BusinessCard({ business, isFavorite: initialFavorite = false }: BusinessCardProps) {
   const [isFavorite, setIsFavorite] = useState(initialFavorite)
+
+  // Normalize business data from API or sample
+  const name = business.businessName || business.name || "Business"
+  const type = business.businessType || business.type || "Service"
+  const phone = business.phone || ""
+  const location = business.location
+  const address = typeof location === 'string' ? location : location?.address || 'Location not available'
+  const distance = business.distance || ""
+  const priceRange = business.priceRange || "moderate"
+  const rating = business.rating || 4.5
+  const reviews = business.reviews || 0
+  const image = business.image || "/placeholder.svg"
 
   const getPriceLabel = (range: string) => {
     switch (range) {
@@ -44,20 +58,22 @@ export function BusinessCard({ business, isFavorite: initialFavorite = false }: 
   }
 
   const handleCall = () => {
-    window.open(`tel:${business.phone}`, "_self")
+    if (phone) window.open(`tel:${phone}`, "_self")
   }
 
   const handleWhatsApp = () => {
-    const message = encodeURIComponent(`Hi! I found your business on UDYOGINI and would like to inquire about your services.`)
-    window.open(`https://wa.me/${business.phone.replace(/\s/g, "")}?text=${message}`, "_blank")
+    if (phone) {
+      const message = encodeURIComponent(`Hi! I found your business on UDYOGINI and would like to inquire about your services.`)
+      window.open(`https://wa.me/${phone.replace(/\D/g, "")}?text=${message}`, "_blank")
+    }
   }
 
   return (
     <Card className="group overflow-hidden border-border/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
       <div className="relative aspect-[4/3] overflow-hidden">
         <Image
-          src={business.image || "/placeholder.svg"}
-          alt={business.name}
+          src={image}
+          alt={name}
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-105"
         />
@@ -72,29 +88,33 @@ export function BusinessCard({ business, isFavorite: initialFavorite = false }: 
           variant="secondary" 
           className="absolute left-3 top-3 bg-card/90 backdrop-blur-sm"
         >
-          {business.type}
+          {String(type)}
         </Badge>
       </div>
       
       <CardContent className="p-4">
         <div className="mb-3">
-          <h3 className="mb-1 font-semibold text-foreground">{business.name}</h3>
+          <h3 className="mb-1 font-semibold text-foreground">{name}</h3>
           <div className="flex items-center gap-1 text-sm text-muted-foreground">
             <MapPin className="h-3.5 w-3.5" />
-            <span>{business.location}</span>
-            <span className="mx-1">•</span>
-            <span>{business.distance}</span>
+            <span>{address}</span>
+            {distance && (
+              <>
+                <span className="mx-1">•</span>
+                <span>{distance}</span>
+              </>
+            )}
           </div>
         </div>
 
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-1">
             <Star className="h-4 w-4 fill-primary text-primary" />
-            <span className="font-medium text-foreground">{business.rating}</span>
-            <span className="text-sm text-muted-foreground">({business.reviews})</span>
+            <span className="font-medium text-foreground">{rating}</span>
+            <span className="text-sm text-muted-foreground">({reviews})</span>
           </div>
           <Badge variant="outline" className="border-border text-xs">
-            {getPriceLabel(business.priceRange)}
+            {getPriceLabel(priceRange)}
           </Badge>
         </div>
 
@@ -102,9 +122,12 @@ export function BusinessCard({ business, isFavorite: initialFavorite = false }: 
           <Link
             href={`/customer/booking?businessId=${business._id || business.id}`}
             className="flex-1"
+            onClick={() => {
+              console.log("📍 Booking link with ID:", business._id || business.id)
+            }}
           >
-            <Button 
-              size="sm" 
+            <Button
+              size="sm"
               className="w-full rounded-lg bg-pink-600 text-white hover:bg-pink-700"
             >
               <Calendar className="mr-1.5 h-3.5 w-3.5" />
@@ -115,6 +138,7 @@ export function BusinessCard({ business, isFavorite: initialFavorite = false }: 
             onClick={handleCall}
             size="sm" 
             className="flex-1 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90"
+            disabled={!phone}
           >
             <Phone className="mr-1.5 h-3.5 w-3.5" />
             Call
@@ -124,6 +148,7 @@ export function BusinessCard({ business, isFavorite: initialFavorite = false }: 
             size="sm" 
             variant="outline"
             className="flex-1 rounded-lg border-green-500 bg-transparent text-green-600 hover:bg-green-500 hover:text-white"
+            disabled={!phone}
           >
             <MessageCircle className="mr-1.5 h-3.5 w-3.5" />
             WhatsApp

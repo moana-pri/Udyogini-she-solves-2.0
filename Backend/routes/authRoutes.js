@@ -3,7 +3,10 @@ import {
   registerCustomer,
   registerBusiness,
   login,
+  getProfile,
+  updateProfile,
 } from "../controllers/authController.js";
+import auth from "../middleware/auth.js";
 import jwt from "jsonwebtoken";
 
 const router = express.Router();
@@ -11,6 +14,8 @@ const router = express.Router();
 router.post("/register/customer", registerCustomer);
 router.post("/register/business", registerBusiness);
 router.post("/login", login);
+router.get("/profile", auth(), getProfile);
+router.put("/profile", auth(), updateProfile);
 
 // Verify token endpoint
 router.get("/verify", (req, res) => {

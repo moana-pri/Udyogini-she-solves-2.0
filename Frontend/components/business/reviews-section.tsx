@@ -1,64 +1,61 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Star, TrendingUp } from "lucide-react"
-
-const reviews = [
-  {
-    id: 1,
-    customer: "Anita Sharma",
-    rating: 5,
-    comment: "Amazing service! Priya is very skilled and professional. The parlour is clean and welcoming. Highly recommend for anyone looking for quality beauty services.",
-    date: "Jan 18, 2026",
-    service: "Haircut & Styling",
-  },
-  {
-    id: 2,
-    customer: "Meera Singh",
-    rating: 4,
-    comment: "Good work on my hair coloring. The color turned out exactly as I wanted. Slightly delayed but worth the wait.",
-    date: "Jan 15, 2026",
-    service: "Hair Coloring",
-  },
-  {
-    id: 3,
-    customer: "Lakshmi Nair",
-    rating: 5,
-    comment: "Best bridal makeup artist in the area! Made me feel so beautiful on my special day. Thank you so much!",
-    date: "Jan 12, 2026",
-    service: "Bridal Makeup",
-  },
-  {
-    id: 4,
-    customer: "Kavitha Reddy",
-    rating: 5,
-    comment: "Very relaxing facial treatment. My skin feels so refreshed and rejuvenated. Will definitely come back!",
-    date: "Jan 10, 2026",
-    service: "Facial Treatment",
-  },
-  {
-    id: 5,
-    customer: "Priya Patel",
-    rating: 4,
-    comment: "Good manicure and pedicure service. Friendly staff and reasonable prices.",
-    date: "Jan 8, 2026",
-    service: "Manicure & Pedicure",
-  },
-]
-
-const ratingStats = {
-  average: 4.8,
-  total: 124,
-  distribution: [
-    { stars: 5, count: 89, percentage: 72 },
-    { stars: 4, count: 25, percentage: 20 },
-    { stars: 3, count: 7, percentage: 6 },
-    { stars: 2, count: 2, percentage: 1.5 },
-    { stars: 1, count: 1, percentage: 0.5 },
-  ],
-}
+import { useEffect, useState } from "react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Star } from "lucide-react"
 
 export function ReviewsSection() {
+  const [reviews, setReviews] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [stats, setStats] = useState({
+    average: 0,
+    total: 0,
+  })
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const token = localStorage.getItem("token")
+        if (!token) {
+          setLoading(false)
+          return
+        }
+
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/reviews/owner/reviews`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        )
+
+        if (res.ok) {
+          const data = await res.json()
+          setReviews(data)
+          if (data.length > 0) {
+            const avgRating = data.reduce((sum: number, r: any) => sum + r.rating, 0) / data.length
+            setStats({
+              average: avgRating,
+              total: data.length,
+            })
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching reviews:", err)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchReviews()
+  }, [])
+
+  const ratingDistribution = [5, 4, 3, 2, 1].map(rating => ({
+    rating,
+    count: reviews.filter(r => r.rating === rating).length,
+  }))
+
   return (
     <div className="space-y-6">
       <div>
@@ -79,29 +76,29 @@ export function ReviewsSection() {
           </CardHeader>
           <CardContent>
             <div className="mb-6 text-center">
-              <p className="text-5xl font-bold text-foreground">{ratingStats.average}</p>
+              <p className="text-5xl font-bold text-foreground">{stats.average.toFixed(1)}</p>
               <div className="mt-2 flex items-center justify-center gap-1">
                 {Array.from({ length: 5 }).map((_, i) => (
                   <Star 
                     key={i}
-                    className={`h-5 w-5 ${i < Math.round(ratingStats.average) ? 'fill-primary text-primary' : 'text-muted'}`}
+                    className={`h-5 w-5 ${i < Math.round(stats.average) ? 'fill-primary text-primary' : 'text-muted'}`}
                   />
                 ))}
               </div>
               <p className="mt-2 text-sm text-muted-foreground">
-                Based on {ratingStats.total} reviews
+                Based on {stats.total} reviews
               </p>
             </div>
 
             <div className="space-y-2">
-              {ratingStats.distribution.map((item) => (
-                <div key={item.stars} className="flex items-center gap-2">
-                  <span className="w-3 text-sm text-muted-foreground">{item.stars}</span>
+              {ratingDistribution.map((item) => (
+                <div key={item.rating} className="flex items-center gap-2">
+                  <span className="w-3 text-sm text-muted-foreground">{item.rating}</span>
                   <Star className="h-4 w-4 fill-primary text-primary" />
                   <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
                     <div 
                       className="h-full rounded-full bg-primary transition-all"
-                      style={{ width: `${item.percentage}%` }}
+                      style={{ width: `${(item.count / Math.max(...ratingDistribution.map(r => r.count), 1)) * 100}%` }}
                     />
                   </div>
                   <span className="w-8 text-right text-xs text-muted-foreground">
@@ -109,13 +106,6 @@ export function ReviewsSection() {
                   </span>
                 </div>
               ))}
-            </div>
-
-            <div className="mt-6 flex items-center justify-center gap-2 rounded-xl bg-green-50 p-3">
-              <TrendingUp className="h-4 w-4 text-green-600" />
-              <span className="text-sm font-medium text-green-600">
-                +0.2 from last month
-              </span>
             </div>
           </CardContent>
         </Card>
@@ -127,38 +117,44 @@ export function ReviewsSection() {
               <Star className="h-5 w-5 text-primary" />
               Customer Reviews
             </CardTitle>
-            <CardDescription>
-              Recent feedback from your customers
-            </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {reviews.map((review) => (
-                <div 
-                  key={review.id}
-                  className="rounded-xl border border-border/50 bg-card p-4"
-                >
-                  <div className="mb-2 flex items-start justify-between">
-                    <div>
-                      <p className="font-medium text-foreground">{review.customer}</p>
-                      <p className="text-xs text-muted-foreground">{review.service}</p>
+            {reviews.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">No reviews yet</p>
+            ) : (
+              <div className="space-y-4">
+                {reviews.map((review) => (
+                  <div 
+                    key={review._id}
+                    className="rounded-xl border border-border/50 bg-card p-4"
+                  >
+                    <div className="mb-2 flex items-start justify-between">
+                      <div>
+                        <p className="font-medium text-foreground">{review.customerId?.fullName || "Customer"}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {new Date(review.createdAt).toLocaleDateString('en-US', { 
+                            year: 'short', 
+                            month: 'short', 
+                            day: 'numeric' 
+                          })}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: 5 }).map((_, i) => (
+                          <Star 
+                            key={i}
+                            className={`h-4 w-4 ${i < review.rating ? 'fill-primary text-primary' : 'text-muted'}`}
+                          />
+                        ))}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star 
-                          key={i}
-                          className={`h-4 w-4 ${i < review.rating ? 'fill-primary text-primary' : 'text-muted'}`}
-                        />
-                      ))}
-                    </div>
+                    <p className="text-sm leading-relaxed text-muted-foreground">
+                      {review.comment || "No comment"}
+                    </p>
                   </div>
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    {review.comment}
-                  </p>
-                  <p className="mt-2 text-xs text-muted-foreground">{review.date}</p>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

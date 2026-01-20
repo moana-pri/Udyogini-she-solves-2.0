@@ -16,23 +16,24 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    const savedLang = localStorage.getItem("language") || "en"
-    setLanguageState(savedLang)
     setMounted(true)
+    const savedLang = localStorage?.getItem("language") || "en"
+    setLanguageState(savedLang)
   }, [])
 
   const setLanguage = (lang: string) => {
     setLanguageState(lang)
-    localStorage.setItem("language", lang)
+    if (typeof window !== 'undefined') {
+      localStorage.setItem("language", lang)
+    }
   }
 
-  // Prevent rendering until mounted to avoid hydration mismatch
-  if (!mounted) {
-    return <>{children}</>
+  const translate = (key: string) => {
+    return t(key, language)
   }
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t: (key) => t(key, language) }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t: translate }}>
       {children}
     </LanguageContext.Provider>
   )
@@ -40,8 +41,8 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
 export function useLanguage() {
   const context = useContext(LanguageContext)
-  if (context === undefined) {
-    throw new Error("useLanguage must be used within LanguageProvider")
+  if (!context) {
+    return { language: "en", setLanguage: () => {}, t: (key: string) => key }
   }
   return context
 }

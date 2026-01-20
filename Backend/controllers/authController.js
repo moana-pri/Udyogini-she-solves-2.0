@@ -118,10 +118,10 @@ export const login = async (req, res) => {
   try {
     const { phone, password } = req.body;
 
-const user = await User.findOne({ phone });
-if (!user) {
-  return res.status(401).json({ message: "Invalid credentials" });
-}
+    const user = await User.findOne({ phone });
+    if (!user) {
+      return res.status(401).json({ message: "Invalid credentials" });
+    }
 
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(401).json({ message: "Invalid credentials" });
@@ -141,6 +141,53 @@ if (!user) {
         role: user.role,
         preferredLanguage: user.preferredLanguage
       }
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+/* GET PROFILE */
+export const getProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      id: user._id,
+      fullName: user.fullName,
+      phone: user.phone,
+      role: user.role,
+      preferredLanguage: user.preferredLanguage
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+/* UPDATE PROFILE */
+export const updateProfile = async (req, res) => {
+  try {
+    const { fullName, phone } = req.body;
+
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { fullName, phone },
+      { new: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      id: user._id,
+      fullName: user.fullName,
+      phone: user.phone,
+      role: user.role,
+      preferredLanguage: user.preferredLanguage
     });
   } catch (err) {
     res.status(500).json({ message: err.message });

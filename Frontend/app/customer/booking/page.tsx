@@ -26,6 +26,7 @@ interface Business {
 
 export default function BookingPage() {
   const [business, setBusiness] = useState<Business | null>(null)
+  const [businessId, setBusinessId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [formData, setFormData] = useState({
@@ -35,23 +36,61 @@ export default function BookingPage() {
     notes: "",
   })
   const [success, setSuccess] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     const fetchBusiness = async () => {
-      const businessId = new URLSearchParams(window.location.search).get("businessId")
-      if (!businessId) {
-        setLoading(false)
-        return
-      }
-
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/business/${businessId}`)
+        const params = new URLSearchParams(window.location.search)
+        const id = params.get("businessId")
+
+        console.log("📍 URL params:", Object.fromEntries(params))
+        console.log("📍 Business ID from URL:", id)
+
+        if (!id) {
+          console.error("❌ No businessId in URL")
+          setError("Business ID is missing. Please select a business first.")
+          setLoading(false)
+          return
+        }
+
+        setBusinessId(id)
+
+        // Check if it's a sample business (numeric ID)
+        const isSampleBusiness = /^\d+$/.test(id)
+        if (isSampleBusiness) {
+          console.log("📍 Sample business detected, showing demo booking")
+          setBusiness({
+            _id: id,
+            businessName: "Sample Business",
+            businessType: "Demo",
+            phone: "+919876543210",
+            location: {
+              address: "Demo Location",
+              coordinates: [0, 0]
+            },
+            workingHours: "9 AM - 6 PM"
+          })
+          setLoading(false)
+          return
+        }
+
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/business/${id}`)
+        console.log("📡 Business fetch response status:", res.status)
+
+        if (!res.ok) {
+          throw new Error(`Failed to fetch business: ${res.status}`)
+        }
+
         const data = await res.json()
+        console.log("✅ Business data received:", data)
         setBusiness(data)
       } catch (err) {
-        console.error("Error fetching business:", err)
+        console.error("❌ Error fetching business:", err)
+        setError(err instanceof Error ? err.message : "Failed to load business")
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
 
     fetchBusiness()
@@ -59,10 +98,44 @@ export default function BookingPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!business) return
+
+    if (!businessId) {
+      setError("Business ID is missing")
+      return
+    }
+
+    if (!formData.serviceType || !formData.date || !formData.time) {
+      setError("Please fill in all required fields")
+      return
+    }
 
     setSubmitting(true)
+    setError(null)
+
     try {
+      // Check if it's a sample business (numeric ID)
+      const isSampleBusiness = /^\d+$/.test(businessId)
+
+      if (isSampleBusiness) {
+        console.log("📝 Sample business booking - simulating success")
+        // Simulate successful booking for sample businesses
+        setTimeout(() => {
+          setSuccess(true)
+          setTimeout(() => {
+            window.location.href = "/customer/dashboard"
+          }, 2000)
+        }, 1000)
+        return
+      }
+
+      console.log("📝 Creating booking with data:", {
+        businessId,
+        service: formData.serviceType,
+        date: formData.date,
+        time: formData.time,
+        notes: formData.notes,
+      })
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/bookings`, {
         method: "POST",
         headers: {
@@ -70,7 +143,7 @@ export default function BookingPage() {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
         body: JSON.stringify({
-          businessId: business._id,
+          businessId: businessId,
           service: formData.serviceType,
           date: formData.date,
           time: formData.time,
@@ -86,13 +159,18 @@ export default function BookingPage() {
           window.location.href = "/customer/dashboard"
         }, 2000)
       } else {
-        const errorData = await res.json()
-        console.error("Booking error:", errorData)
-        alert(`Booking failed: ${errorData.message || "Unknown error"}`)
+        let errorData = {}
+        try {
+          errorData = await res.json()
+        } catch (e) {
+          // Response body might be empty
+        }
+        console.error("❌ Booking error:", errorData)
+        setError(errorData.message || `Booking failed (${res.status})`)
       }
     } catch (err) {
-      console.error("Booking error:", err)
-      alert(`Error creating booking: ${err instanceof Error ? err.message : "Unknown error"}`)
+      console.error("❌ Booking error:", err)
+      setError(err instanceof Error ? err.message : "Unknown error occurred")
     }
     setSubmitting(false)
   }
@@ -102,19 +180,35 @@ export default function BookingPage() {
       <>
         <Header />
         <div className="min-h-screen flex items-center justify-center">
-          <p>Loading...</p>
+          <p>Loading business details...</p>
         </div>
         <Footer />
       </>
     )
   }
 
-  if (!business) {
+  if (error && !business) {
     return (
       <>
         <Header />
-        <div className="min-h-screen flex items-center justify-center">
-          <p>Business not found</p>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 to-pink-50">
+          <Card className="w-96 border-red-200">
+            <CardHeader>
+              <div className="text-center">
+                <p className="text-4xl mb-2">❌</p>
+                <CardTitle>Error</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="text-center space-y-4">
+              <p className="text-sm text-gray-600">{error}</p>
+              <Button 
+                onClick={() => window.location.href = "/customer/dashboard"}
+                className="w-full bg-pink-600 hover:bg-pink-700"
+              >
+                Back to Dashboard
+              </Button>
+            </CardContent>
+          </Card>
         </div>
         <Footer />
       </>
@@ -160,30 +254,39 @@ export default function BookingPage() {
               <CardDescription>Reserve your appointment now</CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
-              {/* Business Info */}
-              <div className="bg-pink-50 p-4 rounded-lg space-y-3">
-                <h3 className="font-semibold text-lg">{business?.businessName || "Business"}</h3>
-                <div className="space-y-2 text-sm">
-                  {business?.location?.address && (
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4 text-pink-600" />
-                      <span>{business.location.address}</span>
-                    </div>
-                  )}
-                  {business?.phone && (
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-pink-600" />
-                      <span>{business.phone}</span>
-                    </div>
-                  )}
-                  {business?.workingHours && (
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-pink-600" />
-                      <span>{business.workingHours}</span>
-                    </div>
-                  )}
+              {/* Error Alert */}
+              {error && (
+                <div className="bg-red-50 border border-red-200 p-4 rounded-lg">
+                  <p className="text-red-700 text-sm">{error}</p>
                 </div>
-              </div>
+              )}
+              
+              {/* Business Info */}
+              {business && (
+                <div className="bg-pink-50 p-4 rounded-lg space-y-3">
+                  <h3 className="font-semibold text-lg">{business?.businessName || "Business"}</h3>
+                  <div className="space-y-2 text-sm">
+                    {business?.location?.address && (
+                      <div className="flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-pink-600" />
+                        <span>{business.location.address}</span>
+                      </div>
+                    )}
+                    {business?.phone && (
+                      <div className="flex items-center gap-2">
+                        <Phone className="h-4 w-4 text-pink-600" />
+                        <span>{business.phone}</span>
+                      </div>
+                    )}
+                    {business?.workingHours && (
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-pink-600" />
+                        <span>{business.workingHours}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
 
               {/* Booking Form */}
               <form onSubmit={handleSubmit} className="space-y-4">
@@ -243,7 +346,7 @@ export default function BookingPage() {
 
                 <Button
                   type="submit"
-                  disabled={submitting || !formData.serviceType || !formData.date || !formData.time}
+                  disabled={submitting || !formData.serviceType || !formData.date || !formData.time || !businessId}
                   className="w-full bg-pink-600 hover:bg-pink-700"
                 >
                   {submitting ? "Creating Booking..." : "Confirm Booking"}

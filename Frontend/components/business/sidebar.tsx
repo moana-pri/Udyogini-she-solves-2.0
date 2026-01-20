@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { cn } from "@/lib/utils"
+import { useEffect, useState } from "react"
 import { 
   LayoutDashboard, 
   Calendar, 
@@ -29,6 +30,52 @@ const menuItems = [
 ]
 
 export function BusinessSidebar({ activeSection, onSectionChange, isOpen, onClose }: BusinessSidebarProps) {
+  const [businessProfile, setBusinessProfile] = useState({
+    businessName: "UDYOGINI",
+    ownerName: "Owner",
+    initials: "U"
+  })
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchBusinessProfile = async () => {
+      try {
+        const token = localStorage.getItem("token")
+        if (!token) return
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/business/profile`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          const businessName = data.businessName || "UDYOGINI"
+          const ownerName = data.ownerName || "Owner"
+          const initials = businessName
+            .split(" ")
+            .map((word: string) => word[0])
+            .join("")
+            .substring(0, 2)
+            .toUpperCase()
+
+          setBusinessProfile({
+            businessName,
+            ownerName,
+            initials
+          })
+        }
+      } catch (error) {
+        console.error("Error fetching business profile:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchBusinessProfile()
+  }, [])
+
   return (
     <>
       {/* Overlay for mobile */}
@@ -47,13 +94,13 @@ export function BusinessSidebar({ activeSection, onSectionChange, isOpen, onClos
         <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-4">
           <Link href="/business/dashboard" className="flex items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary">
-              <span className="text-sm font-bold text-primary-foreground">U</span>
+              <span className="text-sm font-bold text-primary-foreground">{businessProfile.initials}</span>
             </div>
             <span 
               className="text-lg font-bold tracking-tight text-sidebar-foreground"
               style={{ fontFamily: 'var(--font-playfair)' }}
             >
-              UDYOGINI
+              {businessProfile.businessName.substring(0, 12)}
             </span>
           </Link>
           <button 
@@ -69,11 +116,11 @@ export function BusinessSidebar({ activeSection, onSectionChange, isOpen, onClos
         <div className="border-b border-sidebar-border p-4">
           <div className="flex items-center gap-3">
             <Avatar className="h-12 w-12">
-              <AvatarFallback className="bg-primary/10 text-primary">PM</AvatarFallback>
+              <AvatarFallback className="bg-primary/10 text-primary">{businessProfile.initials}</AvatarFallback>
             </Avatar>
             <div className="min-w-0">
-              <p className="truncate font-semibold text-sidebar-foreground">{"Priya's Beauty Parlour"}</p>
-              <p className="text-xs text-sidebar-foreground/60">Beauty Parlour</p>
+              <p className="truncate font-semibold text-sidebar-foreground">{businessProfile.businessName}</p>
+              <p className="text-xs text-sidebar-foreground/60">{businessProfile.ownerName}</p>
             </div>
           </div>
         </div>

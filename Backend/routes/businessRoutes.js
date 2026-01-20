@@ -1,4 +1,5 @@
 import express from "express"
+import mongoose from "mongoose"
 import Business from "../models/Business.js"
 import Booking from "../models/Booking.js"
 import auth from "../middleware/auth.js"
@@ -124,12 +125,26 @@ router.get("/nearby", async (req, res) => {
 // GET SINGLE BUSINESS BY ID
 router.get("/:id", async (req, res) => {
   try {
+    console.log("🔍 Fetching business by ID:", req.params.id);
+
+    // Validate ObjectId
+    if (!req.params.id || !mongoose.Types.ObjectId.isValid(req.params.id)) {
+      console.log("❌ Invalid ObjectId:", req.params.id);
+      return res.status(400).json({ message: "Invalid business ID" });
+    }
+
     const business = await Business.findById(req.params.id);
     if (!business) {
+      console.log("❌ Business not found for ID:", req.params.id);
       return res.status(404).json({ message: "Business not found" });
     }
+    console.log("✅ Business found:", business.businessName);
     res.json(business);
   } catch (err) {
+    console.error("❌ Error fetching business:", err);
+    if (err.name === 'CastError') {
+      return res.status(400).json({ message: "Invalid business ID format" });
+    }
     res.status(500).json({ message: err.message });
   }
 });
