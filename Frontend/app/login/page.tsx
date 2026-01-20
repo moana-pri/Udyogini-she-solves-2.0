@@ -22,9 +22,9 @@ export default function LoginPage() {
 
  const handleCustomerLogin = async (e: React.FormEvent) => {
   e.preventDefault()
-
+const API = process.env.NEXT_PUBLIC_API_URL
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`,
+    `${API}/api/auth/login`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -41,6 +41,7 @@ export default function LoginPage() {
 
   localStorage.setItem("token", data.token)
   localStorage.setItem("userName", data.user.fullName)
+  localStorage.setItem("phone", data.user.phone)
   localStorage.setItem("role", data.user.role)
 
   router.push("/customer/dashboard")
@@ -68,6 +69,7 @@ export default function LoginPage() {
 
   localStorage.setItem("token", data.token)
   localStorage.setItem("userName", data.user.fullName)
+  localStorage.setItem("phone", data.user.phone)
   localStorage.setItem("role", data.user.role)
   localStorage.setItem("language", data.user.preferredLanguage)
 
