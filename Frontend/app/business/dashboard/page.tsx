@@ -9,7 +9,7 @@ import { CustomerInteractions } from "@/components/business/customer-interaction
 import { ReviewsSection } from "@/components/business/reviews-section"
 import { ProfileSection } from "@/components/business/profile-section"
 import { Menu, X } from "lucide-react"
-import { LanguageProvider } from "@/lib/language-context"
+import { LanguageProvider } from "@/lib/enhanced-language-context"
 
 
 export default function BusinessDashboard() {

@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Search, MapPin, Star, Calendar, TrendingUp } from "lucide-react";
-import { LanguageProvider } from "@/lib/language-context";
-import { LanguageSelector } from "@/components/ui/language-selector";
-import { useLanguage } from "@/lib/language-context";
+import { LanguageProvider } from "@/lib/enhanced-language-context";
+import { EnhancedLanguageSelector } from "@/components/ui/enhanced-language-selector";
+import { useLanguage } from "@/lib/enhanced-language-context";
 
 export default function CustomerHome() {
   const router = useRouter();
@@ -80,7 +80,7 @@ export default function CustomerHome() {
             <div className="flex items-center justify-between h-16">
               <div className="flex items-center gap-4">
                 <h1 className="text-2xl font-bold text-gray-900">{t('welcome')}</h1>
-                <LanguageSelector />
+                <EnhancedLanguageSelector />
               </div>
               <nav className="hidden md:flex space-x-8">
                 <Button 
