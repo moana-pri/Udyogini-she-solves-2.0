@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { BusinessSidebar } from "@/components/business/sidebar"
 import { DashboardOverview } from "@/components/business/dashboard-overview"
 import { BookingHistory } from "@/components/business/booking-history"
@@ -8,28 +9,77 @@ import { CustomerInteractions } from "@/components/business/customer-interaction
 import { ReviewsSection } from "@/components/business/reviews-section"
 import { ProfileSection } from "@/components/business/profile-section"
 import { Menu, X } from "lucide-react"
-import { useEffect } from "react"
 
 
 export default function BusinessDashboard() {
-
-  
+  const router = useRouter()
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [stats, setStats] = useState(null);
-
-useEffect(() => {
-  fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/business/stats`, {
-    headers: {
-      Authorization: `Bearer ${localStorage.getItem("token")}`,
-    },
-  })
-    .then((res) => res.json())
-    .then(setStats);
-}, []);
-
-
-
   const [activeSection, setActiveSection] = useState("overview")
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const token = localStorage.getItem("token")
+      if (!token) {
+        router.push("/login")
+        return
+      }
+
+      try {
+        // Verify user is a business owner
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (!res.ok) {
+          router.push("/login")
+          return
+        }
+
+        const userData = await res.json()
+        if (userData.role !== "business_owner") {
+          router.push("/customer/dashboard")
+          return
+        }
+
+        setIsAuthenticated(true)
+        setIsLoading(false)
+
+        // Fetch stats after authentication
+        fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/business/stats`, {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        })
+          .then((res) => res.json())
+          .then(setStats);
+      } catch (err) {
+        console.error("Auth check failed:", err)
+        router.push("/login")
+      }
+    }
+
+    checkAuth()
+  }, [router]);
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-pink-600 mx-auto mb-4"></div>
+          <p>Loading...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (!isAuthenticated) {
+    return null // Will redirect
+  }
 
   const renderSection = () => {
     switch (activeSection) {
