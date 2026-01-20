@@ -13,8 +13,8 @@ import {
   X
 } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { LanguageSelector } from "@/components/ui/language-selector"
-import { useLanguage } from "@/lib/language-context"
+import { EnhancedLanguageSelector } from "@/components/ui/enhanced-language-selector"
+import { useLanguage } from "@/lib/enhanced-language-context"
 
 interface BusinessSidebarProps {
   activeSection: string
@@ -111,7 +111,7 @@ export function BusinessSidebar({ activeSection, onSectionChange, isOpen, onClos
             </span>
           </Link>
           <div className="flex items-center gap-2">
-            <LanguageSelector />
+            <EnhancedLanguageSelector />
             <button 
               onClick={onClose}
               className="rounded-lg p-1 hover:bg-sidebar-accent md:hidden"

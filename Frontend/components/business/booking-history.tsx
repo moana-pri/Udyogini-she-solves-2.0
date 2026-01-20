@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Check, X, Clock } from "lucide-react";
-import { useLanguage } from "@/lib/language-context";
+import { useLanguage } from "@/lib/enhanced-language-context";
 
 interface Booking {
   _id: string;
