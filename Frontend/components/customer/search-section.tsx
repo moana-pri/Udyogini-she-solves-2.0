@@ -26,15 +26,50 @@ interface SearchSectionProps {
 export function SearchSection({ onSearch }: SearchSectionProps) {
   const [serviceType, setServiceType] = useState("")
   const [location, setLocation] = useState("")
+  const [isLoadingLocation, setIsLoadingLocation] = useState(false)
 
   const handleSearch = () => {
     onSearch(serviceType, location)
   }
 
-  const handleNearbySearch = () => {
-    // Mock nearby search
-    setLocation("Bangalore")
-    onSearch(serviceType, "Bangalore")
+  const handleNearbySearch = async () => {
+    setIsLoadingLocation(true)
+    try {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const lat = position.coords.latitude
+            const lng = position.coords.longitude
+            
+            // Fetch nearby businesses from API
+            const params = new URLSearchParams()
+            params.append("lat", lat.toString())
+            params.append("lng", lng.toString())
+            params.append("radius", "25")
+            
+            const response = await fetch(
+              `${process.env.NEXT_PUBLIC_API_URL}/api/business/nearby?${params}`
+            )
+            const businesses = await response.json()
+            
+            // Store results and trigger callback
+            setLocation(`Near You (${businesses.length} services found)`)
+            onSearch(serviceType, `nearby:${lat},${lng}`)
+            setIsLoadingLocation(false)
+          },
+          () => {
+            alert("Please enable location permission to find nearby services")
+            setIsLoadingLocation(false)
+          }
+        )
+      } else {
+        alert("Geolocation is not supported by your browser")
+        setIsLoadingLocation(false)
+      }
+    } catch (error) {
+      console.error("Error fetching nearby businesses:", error)
+      setIsLoadingLocation(false)
+    }
   }
 
   return (
@@ -87,11 +122,12 @@ export function SearchSection({ onSearch }: SearchSectionProps) {
             </Button>
             <Button 
               onClick={handleNearbySearch}
+              disabled={isLoadingLocation}
               variant="outline"
-              className="h-12 rounded-xl border-primary bg-transparent text-primary hover:bg-primary hover:text-primary-foreground"
+              className="h-12 rounded-xl border-primary bg-transparent text-primary hover:bg-primary hover:text-primary-foreground disabled:opacity-50"
             >
               <Navigation className="mr-2 h-4 w-4" />
-              <span className="hidden sm:inline">Nearby</span>
+              <span className="hidden sm:inline">{isLoadingLocation ? "Getting location..." : "Nearby"}</span>
             </Button>
           </div>
         </div>
