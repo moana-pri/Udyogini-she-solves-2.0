@@ -1,6 +1,8 @@
 "use client"
 
 import { useState } from "react"
+import { useLanguage } from "@/lib/language-context"
+import { t } from "@/lib/translations"
 import { CustomerDashboardHeader } from "@/components/customer/dashboard-header"
 import { SearchSection } from "@/components/customer/search-section"
 import { BusinessCard } from "@/components/customer/business-card"
@@ -90,9 +92,82 @@ const sampleBusinesses = [
     phone: "+919876543215",
     image: "/images/hero-illustration.jpg",
   },
+  {
+    id: 7,
+    name: "Divya's Tailoring Studio",
+    type: "Tailoring",
+    location: "Vijaynagar",
+    distance: "2.3 km",
+    priceRange: "budget",
+    rating: 4.7,
+    reviews: 78,
+    phone: "+919876543216",
+    image: "/images/hero-illustration.jpg",
+  },
+  {
+    id: 8,
+    name: "Anjali's Beauty Parlor",
+    type: "Beauty Parlour",
+    location: "bibewadi",
+    distance: "3.5 km",
+    priceRange: "premium",
+    rating: 4.9,
+    reviews: 203,
+    phone: "+919876543217",
+    image: "/images/hero-illustration.jpg",
+  },
+  {
+    id: 9,
+    name: "Neha's Cooking Classes",
+    type: "Home Food",
+    location: "suksagar,katraj",
+    distance: "4.2 km",
+    priceRange: "moderate",
+    rating: 4.6,
+    reviews: 95,
+    phone: "+919876543218",
+    image: "/images/hero-illustration.jpg",
+  },
+  {
+    id: 10,
+    name: "Rekha's Jewelry Design",
+    type: "Handicrafts",
+    location: "lake town,pune ",
+    distance: "2.8 km",
+    priceRange: "premium",
+    rating: 4.8,
+    reviews: 134,
+    phone: "+919876543219",
+    image: "/images/hero-illustration.jpg",
+  },
+  {
+    id: 11,
+    name: "Pooja's Dance Academy",
+    type: "Wellness",
+    location: "indiranager,pune ",
+    distance: "1.9 km",
+    priceRange: "budget",
+    rating: 4.7,
+    reviews: 67,
+    phone: "+919876543220",
+    image: "/images/hero-illustration.jpg",
+  },
+  {
+    id: 12,
+    name: "Sneha's Online Tutoring",
+    type: "Tutoring & Education",
+    location: "banglore ",
+    distance: "5.5 km",
+    priceRange: "moderate",
+    rating: 4.9,
+    reviews: 189,
+    phone: "+919876543221",
+    image: "/images/hero-illustration.jpg",
+  },
 ]
 
 export default function CustomerDashboard() {
+  const { language } = useLanguage()
 
   useEffect(() => {
     const token = localStorage.getItem("token")
@@ -127,39 +202,80 @@ export default function CustomerDashboard() {
 
   const [activeTab, setActiveTab] = useState("home")
   const [filteredBusinesses, setFilteredBusinesses] = useState<any[]>([])
-  const [pendingReviewId, setPendingReviewId] = useState<number | null>(null)
+  const [pendingReviewId, setPendingReviewId] = useState<string | null>(null)
+  const [userName, setUserName] = useState("User")
   const searchParams = useSearchParams()
-  const [language, setLanguage] = useState(
-  localStorage.getItem("language") || "en"
-)
 
-
-  const handleSearch = (serviceType: string, location: string) => {
-    let results = sampleBusinesses
-    
-    if (serviceType && serviceType !== "all") {
-      const typeMap: Record<string, string> = {
-        "beauty-parlour": "Beauty Parlour",
-        "tailoring": "Tailoring",
-        "food": "Home Food",
-        "mehendi": "Mehendi Art",
-        "handicrafts": "Handicrafts",
-        "wellness": "Wellness",
-      }
-      results = results.filter((b) => b.type === typeMap[serviceType])
+  // Load user name from localStorage
+  useEffect(() => {
+    const savedName = localStorage.getItem("userName")
+    if (savedName) {
+      setUserName(savedName)
     }
+  }, [])
+
+
+  const handleSearch = async (serviceType: string, location: string) => {
+    let results: any[] = []
     
-    if (location) {
-      results = results.filter((b) => 
-        b.location.toLowerCase().includes(location.toLowerCase())
-      )
+    // Handle nearby location search
+    if (location.startsWith("nearby:")) {
+      const [lat, lng] = location.split(":")[1].split(",")
+      const params = new URLSearchParams()
+      params.append("lat", lat)
+      params.append("lng", lng)
+      params.append("radius", "25")
+      
+      try {
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/business/nearby?${params}`
+        )
+        results = await response.json()
+        
+        // Filter by service type if selected
+        if (serviceType && serviceType !== "all") {
+          const typeMap: Record<string, string> = {
+            "beauty-parlour": "Beauty Parlour",
+            "tailoring": "Tailoring & Fashion",
+            "food": "Home Food & Catering",
+            "mehendi": "Mehendi Art",
+            "handicrafts": "Handicrafts & Jewelry",
+            "wellness": "Wellness & Yoga",
+          }
+          results = results.filter((b: any) => b.businessType === typeMap[serviceType])
+        }
+      } catch (error) {
+        console.error("Error fetching nearby businesses:", error)
+        results = []
+      }
+    } else {
+      // Regular search with sample data
+      results = sampleBusinesses
+      
+      if (serviceType && serviceType !== "all") {
+        const typeMap: Record<string, string> = {
+          "beauty-parlour": "Beauty Parlour",
+          "tailoring": "Tailoring",
+          "food": "Home Food",
+          "mehendi": "Mehendi Art",
+          "handicrafts": "Handicrafts",
+          "wellness": "Wellness",
+        }
+        results = results.filter((b) => b.type === typeMap[serviceType])
+      }
+      
+      if (location) {
+        results = results.filter((b) => 
+          b.location.toLowerCase().includes(location.toLowerCase())
+        )
+      }
     }
     
     setFilteredBusinesses(results)
     setActiveTab("search")
   }
 
-  const handleReviewClick = (bookingId: number) => {
+  const handleReviewClick = (bookingId: string) => {
     setPendingReviewId(bookingId)
     setActiveTab("reviews")
   }
@@ -172,7 +288,7 @@ export default function CustomerDashboard() {
             {/* Welcome Section */}
             <div className="animate-fade-in-up">
               <h1 className="text-2xl font-semibold text-foreground sm:text-3xl">
-                Welcome back, <span className="text-primary">Anita</span>
+                {t("welcome", language)} back, <span className="text-primary">{userName}</span>
               </h1>
               <p className="mt-1 text-muted-foreground">
                 Discover and support women-owned businesses in your community
@@ -193,7 +309,7 @@ export default function CustomerDashboard() {
                   </div>
                   <div>
                     <p className="text-2xl font-semibold text-foreground">12</p>
-                    <p className="text-sm text-muted-foreground">Total Bookings</p>
+                    <p className="text-sm text-muted-foreground">{t("my_bookings", language)}</p>
                   </div>
                 </CardContent>
               </Card>
