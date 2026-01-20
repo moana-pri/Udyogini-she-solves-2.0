@@ -8,6 +8,7 @@ import { Search, MapPin, Star, Calendar, TrendingUp } from "lucide-react";
 import { LanguageProvider } from "@/lib/enhanced-language-context";
 import { EnhancedLanguageSelector } from "@/components/ui/enhanced-language-selector";
 import { useLanguage } from "@/lib/enhanced-language-context";
+import { BusinessCardImage } from "@/components/ui/business-card-image";
 
 export default function CustomerHome() {
   const router = useRouter();
@@ -16,6 +17,48 @@ export default function CustomerHome() {
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [loading, setLoading] = useState(false);
   const { t } = useLanguage();
+
+  // Mock businesses for testing photo system
+  const mockBusinesses = [
+    {
+      _id: "1",
+      businessName: "Stitch Perfect",
+      businessType: "Tailoring",
+      businessDescription: "Professional tailoring and alteration services",
+      location: { address: "Mumbai, Maharashtra" },
+      averageRating: 4.5
+    },
+    {
+      _id: "2", 
+      businessName: "Homely Kitchen",
+      businessType: "Home Food",
+      businessDescription: "Delicious homemade food and tiffin services",
+      location: { address: "Pune, Maharashtra" },
+      averageRating: 4.8
+    },
+    {
+      _id: "3",
+      businessName: "Mehendi Arts",
+      businessType: "Mehendi", 
+      businessDescription: "Beautiful mehendi designs for all occasions",
+      location: { address: "Nagpur, Maharashtra" },
+      averageRating: 4.7
+    },
+    {
+      _id: "4",
+      businessName: "Beauty Bliss",
+      businessType: "Beauty Parlour",
+      businessDescription: "Complete beauty and wellness services",
+      location: { address: "Nashik, Maharashtra" },
+      averageRating: 4.6
+    }
+  ];
+
+  // Initialize with mock businesses for testing
+  useEffect(() => {
+    // Start with mock businesses to test photo system
+    setNearbyBusinesses(mockBusinesses);
+  }, []);
 
   useEffect(() => {
     // Get user's location
@@ -56,6 +99,7 @@ export default function CustomerHome() {
 
       const response = await fetch(searchUrl);
       const data = await response.json();
+      console.log('Business search results:', data);
       setNearbyBusinesses(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error searching businesses:", error);
@@ -146,6 +190,40 @@ export default function CustomerHome() {
             </CardContent>
           </Card>
 
+          {/* Test Section - Mock Businesses with Photos */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Star className="h-5 w-5" />
+                Business Type Photos Demo
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-gray-600 mb-4">
+                Testing business type photo system with sample businesses:
+              </p>
+              <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+                {mockBusinesses.map((business, index) => (
+                  <Card key={business._id} className="hover:shadow-lg transition-shadow cursor-pointer overflow-hidden">
+                    <BusinessCardImage 
+                      businessType={business.businessType}
+                      businessName={business.businessName}
+                      priority={index < 2}
+                    />
+                    <CardContent className="p-4">
+                      <h4 className="font-semibold text-sm text-gray-900 mb-1">{business.businessName}</h4>
+                      <p className="text-xs text-gray-600">{business.businessType}</p>
+                      <div className="flex items-center gap-1 mt-2">
+                        <Star className="h-3 w-3 text-yellow-400 fill-current" />
+                        <span className="text-xs text-gray-600">{business.averageRating}</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Quick Stats */}
           <div className="grid gap-6 mb-8 md:grid-cols-3">
             <Card>
@@ -181,8 +259,15 @@ export default function CustomerHome() {
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-6">{t('nearby_businesses')}</h2>
               <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                {nearbyBusinesses.map((business: any) => (
-                  <Card key={business._id} className="hover:shadow-lg transition-shadow cursor-pointer">
+                {nearbyBusinesses.map((business: any, index: number) => (
+                  <Card key={business._id} className="hover:shadow-lg transition-shadow cursor-pointer overflow-hidden">
+                    {/* Business Type Image */}
+                    <BusinessCardImage 
+                      businessType={business.businessType}
+                      businessName={business.businessName}
+                      priority={index < 3} // Prioritize loading for first 3 images
+                    />
+                    
                     <CardContent className="p-6">
                       <div className="flex justify-between items-start mb-4">
                         <h3 className="text-lg font-semibold text-gray-900">{business.businessName}</h3>
