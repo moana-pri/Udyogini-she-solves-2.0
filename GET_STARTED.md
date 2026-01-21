@@ -7,7 +7,7 @@ Frontend and Backend run separately.
 Frontend: Next.js  
 Backend: Node.js + Express + MongoDB
 
----
+
 
 ## Backend Setup
 
@@ -29,7 +29,6 @@ Expected output:
 MongoDB connected  
 Server running on port 5000
 
----
 
 ## Frontend Setup
 
@@ -45,7 +44,7 @@ npm install
 4. Start frontend:
 npm run dev
 
----
+
 
 ## Common Issues
 
