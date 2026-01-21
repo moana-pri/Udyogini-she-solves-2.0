@@ -83,10 +83,7 @@ She_Solves/
 | en | English | English | Latin |
 | hi | Hindi | हिंदी | Devanagari |
 | mr | Marathi | मराठी | Devanagari |
-| ta | Tamil | தமிழ் | Tamil |
-| te | Telugu | తెలుగు | Telugu |
-| ka | Kannada | ಕನ್ನಡ | Kannada |
-| ml | Malayalam | മലയാളം | Malayalam |
+
 
 ### Architecture
 - **Backend**: Translation API endpoints using LibreTranslate
