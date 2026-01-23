@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { getBusinessTypePhoto, getPlaceholderPhoto, getDefaultBusinessPhoto } from "@/lib/businessTypePhotos";
+import { getBusinessTypePhoto } from "@/lib/businessTypePhotos";
 import { Building2, Loader2 } from "lucide-react";
 
 interface BusinessCardImageProps {
@@ -21,10 +21,18 @@ export function BusinessCardImage({
   businessId
 }: BusinessCardImageProps) {
   const [imageState, setImageState] = useState<'loading' | 'loaded' | 'error'>('loading');
-  const [currentPhoto, setCurrentPhoto] = useState(getPlaceholderPhoto());
+  const [currentPhoto, setCurrentPhoto] = useState({
+  photoUrl: "/placeholder.jpg",
+  altText: "Placeholder image"
+});
+
 
   // Get the appropriate photo for this business type
-  const businessPhoto = getBusinessTypePhoto(businessType || '', businessId) || getDefaultBusinessPhoto();
+  const businessPhoto = getBusinessTypePhoto(businessType || '', businessId) || {
+  photoUrl: "/placeholder-logo.png",
+  altText: "Default business image"
+};
+
   
   console.log('BusinessCardImage props:', { businessType, businessName });
   console.log('Selected photo:', businessPhoto);
@@ -38,7 +46,11 @@ export function BusinessCardImage({
     console.log('Image failed to load, using fallback');
     setImageState('error');
     // Fallback to default photo
-    setCurrentPhoto(getDefaultBusinessPhoto());
+    setCurrentPhoto({
+  photoUrl: "/placeholder-logo.png",
+  altText: "Default business image"
+});
+
   };
 
   return (
