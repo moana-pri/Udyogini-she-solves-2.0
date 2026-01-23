@@ -1,5 +1,6 @@
 import express from "express";
 import Booking from "../models/Booking.js";
+import Notification from "../models/Notification.js";
 import auth from "../middleware/auth.js";
 
 const router = express.Router();
@@ -125,10 +126,25 @@ router.put("/:id/decline", auth("business_owner"), async (req, res) => {
       req.params.id,
       { 
         status: "declined",
-        declinedReason: reason || "No reason provided"
+        declinedReason: reason || "No reason provided",
+        declinedAt: new Date(),
       },
       { new: true }
     ).populate("customerId", "fullName phone email");
+
+    try {
+      const recipientId = booking?.customerId?._id || booking?.customerId;
+      if (recipientId) {
+        await Notification.create({
+          recipient: recipientId,
+          type: 'booking_declined',
+          message: `Your booking for ${booking.service} on ${booking.date} at ${booking.time} was declined. Reason: ${reason || 'No reason provided'}`,
+          bookingId: booking._id,
+        });
+      }
+    } catch (nErr) {
+      console.error('Error creating notification:', nErr);
+    }
 
     res.json(booking);
   } catch (err) {
@@ -139,13 +155,34 @@ router.put("/:id/decline", auth("business_owner"), async (req, res) => {
 /* UPDATE BOOKING STATUS - COMPLETE */
 router.put("/:id/complete", auth("business_owner"), async (req, res) => {
   try {
+    const { amountReceived } = req.body || {};
+    const update = { status: "completed", completedAt: new Date() };
+    if (typeof amountReceived !== "undefined") {
+      update.amountReceived = amountReceived;
+    }
+
     const booking = await Booking.findByIdAndUpdate(
       req.params.id,
-      { status: "completed" },
+      update,
       { new: true }
     );
 
-    res.json(booking);
+        // Create notification for customer about completion/payment
+        try {
+          const recipientId = booking?.customerId?._id || booking?.customerId;
+          if (recipientId) {
+            await Notification.create({
+              recipient: recipientId,
+              type: 'booking_completed',
+              message: `Your booking for ${booking.service} on ${booking.date} at ${booking.time} was marked completed. Amount received: ₹${booking.amountReceived || 0}`,
+              bookingId: booking._id,
+            });
+          }
+        } catch (nErr) {
+          console.error('Error creating completion notification:', nErr);
+        }
+
+        res.json(booking);
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

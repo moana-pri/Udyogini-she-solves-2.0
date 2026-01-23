@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
-import { getBusinessTypePhoto, getPlaceholderPhoto, getDefaultBusinessPhoto } from "@/lib/business-type-photos";
+import { getBusinessTypePhoto, getPlaceholderPhoto, getDefaultBusinessPhoto } from "@/lib/businessTypePhotos";
 import { Building2, Loader2 } from "lucide-react";
 
 interface BusinessCardImageProps {
@@ -10,19 +10,21 @@ interface BusinessCardImageProps {
   businessName: string;
   className?: string;
   priority?: boolean;
+  businessId?: string | number;
 }
 
 export function BusinessCardImage({ 
   businessType, 
   businessName, 
   className = "",
-  priority = false 
+  priority = false,
+  businessId
 }: BusinessCardImageProps) {
   const [imageState, setImageState] = useState<'loading' | 'loaded' | 'error'>('loading');
   const [currentPhoto, setCurrentPhoto] = useState(getPlaceholderPhoto());
 
   // Get the appropriate photo for this business type
-  const businessPhoto = getBusinessTypePhoto(businessType || '') || getDefaultBusinessPhoto();
+  const businessPhoto = getBusinessTypePhoto(businessType || '', businessId) || getDefaultBusinessPhoto();
   
   console.log('BusinessCardImage props:', { businessType, businessName });
   console.log('Selected photo:', businessPhoto);

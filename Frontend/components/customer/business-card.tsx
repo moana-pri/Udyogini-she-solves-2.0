@@ -6,13 +6,14 @@ import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Star, MapPin, Phone, Heart, MessageCircle, Calendar } from "lucide-react"
+import { Star, MapPin, Phone, Heart, MessageCircle, Calendar, Navigation } from "lucide-react"
+import { getBusinessTypePhoto } from "@/lib/businessTypePhotos";
 
 interface Business {
   id: number
   name: string
   type: string
-  location: string | { address: string; coordinates?: [number, number] }
+  location: string | { address: string; coordinates?: [number, number]; lat?: number; lng?: number }
   distance: string
   priceRange: string
   rating: number
@@ -63,20 +64,80 @@ export function BusinessCard({ business, isFavorite: initialFavorite = false }: 
 
   const handleWhatsApp = () => {
     if (phone) {
+      let formattedPhone = phone.replace(/\s/g, "").replace(/[^\d+]/g, "");
+      if (!formattedPhone.startsWith("+")) {
+        formattedPhone = "+91" + formattedPhone;
+      }
       const message = encodeURIComponent(`Hi! I found your business on UDYOGINI and would like to inquire about your services.`)
-      window.open(`https://wa.me/${phone.replace(/\D/g, "")}?text=${message}`, "_blank")
+      window.open(`https://wa.me/${formattedPhone}?text=${message}`, "_blank")
+    }
+  }
+
+  const handleGetDirections = () => {
+    // Extract business coordinates - handle both formats
+    let businessLat, businessLng
+    
+    if (typeof location === 'object') {
+      // New format: { address, lat, lng }
+      if (location?.lat && location?.lng) {
+        businessLat = location.lat
+        businessLng = location.lng
+      }
+      // Old format: { address, coordinates: [lng, lat] }
+      else if (location?.coordinates?.[1] && location?.coordinates?.[0]) {
+        businessLat = location.coordinates[1]
+        businessLng = location.coordinates[0]
+      }
+    }
+
+    if (!businessLat || !businessLng) {
+      // Fallback: open with just the address if coordinates not available
+      window.open(`https://www.google.com/maps/search/${encodeURIComponent(address)}`, "_blank")
+      return
+    }
+
+    // Try to get user's current location
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const userLat = position.coords.latitude
+          const userLng = position.coords.longitude
+          // Open Google Maps with directions from user's location to business
+          const mapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${userLat},${userLng}&destination=${businessLat},${businessLng}&travelmode=driving`
+          window.open(mapsUrl, "_blank")
+        },
+        () => {
+          // If geolocation denied, open with just destination
+          const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${businessLat},${businessLng}&travelmode=driving`
+          window.open(mapsUrl, "_blank")
+        }
+      )
+    } else {
+      // Fallback for browsers without geolocation support
+      const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${businessLat},${businessLng}&travelmode=driving`
+      window.open(mapsUrl, "_blank")
     }
   }
 
   return (
     <Card className="group overflow-hidden border-border/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
-      <div className="relative aspect-[4/3] overflow-hidden">
+      <div className="relative aspect-[4/3] overflow-hidden bg-gray-200">
         <Image
-          src={image}
-          alt={name}
-          fill
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
+          src={getBusinessTypePhoto(business.businessType, business._id || business.id)}
+          alt={
+            business.businessType
+              ? `${business.businessType} business`
+              : "Business service image"
+          }
+          width={400}
+          height={300}
+          className="rounded-lg object-cover w-full h-full"
+          onError={(e) => {
+            // Fallback to default image on error
+            e.currentTarget.src = "/images/business-types/default-business.jpg";
+          }}
         />
+
         <button
           onClick={() => setIsFavorite(!isFavorite)}
           className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-card/90 backdrop-blur-sm transition-colors hover:bg-card"
@@ -95,16 +156,19 @@ export function BusinessCard({ business, isFavorite: initialFavorite = false }: 
       <CardContent className="p-4">
         <div className="mb-3">
           <h3 className="mb-1 font-semibold text-foreground">{name}</h3>
-          <div className="flex items-center gap-1 text-sm text-muted-foreground">
-            <MapPin className="h-3.5 w-3.5" />
-            <span>{address}</span>
+          <button
+            onClick={handleGetDirections}
+            className="flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer group/location"
+          >
+            <MapPin className="h-3.5 w-3.5 group-hover/location:text-primary" />
+            <span className="group-hover/location:underline">{address}</span>
             {distance && (
               <>
                 <span className="mx-1">•</span>
                 <span>{distance}</span>
               </>
             )}
-          </div>
+          </button>
         </div>
 
         <div className="mb-4 flex items-center justify-between">
@@ -152,6 +216,15 @@ export function BusinessCard({ business, isFavorite: initialFavorite = false }: 
           >
             <MessageCircle className="mr-1.5 h-3.5 w-3.5" />
             WhatsApp
+          </Button>
+          <Button 
+            onClick={handleGetDirections}
+            size="sm" 
+            variant="outline"
+            className="rounded-lg border-blue-500 bg-transparent text-blue-600 hover:bg-blue-500 hover:text-white"
+            title="Get directions to this business"
+          >
+            <Navigation className="h-3.5 w-3.5" />
           </Button>
         </div>
       </CardContent>

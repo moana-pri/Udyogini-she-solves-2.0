@@ -71,7 +71,23 @@ export function BusinessSidebar({ activeSection, onSectionChange, isOpen, onClos
           })
           console.log('Business profile loaded:', { businessName, ownerName })
         } else {
-          console.error('Failed to fetch business profile:', response.status)
+          // Attempt to read error body for helpful messaging
+          try {
+            const text = await response.text();
+            let body: any = { message: text };
+            try { body = JSON.parse(text); } catch(_) {}
+
+            if (body.message && body.message.includes('Business not found')) {
+              console.warn('Business profile missing - redirecting to registration');
+              // show brief message then redirect to business registration
+              setBusinessProfile(prev => ({ ...prev, businessName: 'Create profile' }));
+              setTimeout(() => { window.location.href = '/register/business' }, 1500);
+            } else {
+              console.error('Failed to fetch business profile:', response.status, body.message || text)
+            }
+          } catch (err) {
+            console.error('Failed to fetch business profile and could not read body:', err)
+          }
         }
       } catch (error) {
         console.error("Error fetching business profile:", error)

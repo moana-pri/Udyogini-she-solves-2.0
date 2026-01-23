@@ -7,6 +7,7 @@ import bookingRoutes from "./routes/bookingRoutes.js";
 import businessRoutes from "./routes/businessRoutes.js"
 import reviewRoutes from "./routes/reviewRoutes.js";
 import translationRoutes from "./routes/translationRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js";
 
 dotenv.config();
 const app = express();
@@ -22,6 +23,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/translate", translationRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 app.use("/api/business", businessRoutes);
 

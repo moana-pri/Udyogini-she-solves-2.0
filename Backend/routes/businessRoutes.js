@@ -4,6 +4,9 @@ import Business from "../models/Business.js"
 import Booking from "../models/Booking.js"
 import auth from "../middleware/auth.js"
 import { getBusinessDashboard } from "../controllers/dashboardController.js";
+import { getBusinessForCustomer, getBusinessesForCustomer } from "../controllers/customerBusinessController.js";
+import { getNotificationsCount, getWeeklyStats } from "../controllers/notificationController.js";
+import { getIncomeStats, getWeeklyIncome } from "../controllers/incomeController.js";
 
 const router = express.Router()
 
@@ -50,6 +53,20 @@ router.get("/profile", auth("business_owner"), async (req, res) => {
 })
 
 router.get("/dashboard", auth("business_owner"), getBusinessDashboard);
+
+// 🔔 NOTIFICATION ROUTES
+// Get count of upcoming appointments
+router.get("/notifications", auth("business_owner"), getNotificationsCount);
+
+// Get weekly booking statistics
+router.get("/weekly-stats", auth("business_owner"), getWeeklyStats);
+
+// 💰 INCOME ROUTES
+// Get income statistics (today, month, total)
+router.get("/income-stats", auth("business_owner"), getIncomeStats);
+
+// Get weekly income statistics
+router.get("/weekly-income", auth("business_owner"), getWeeklyIncome);
 
 // GET BUSINESS STATS
 router.get("/stats", auth("business_owner"), async (req, res) => {
@@ -122,7 +139,7 @@ router.get("/nearby", async (req, res) => {
   }
 });
 
-// GET SINGLE BUSINESS BY ID
+// GET SINGLE BUSINESS BY ID (for business owners - no translation)
 router.get("/:id", async (req, res) => {
   try {
     console.log("🔍 Fetching business by ID:", req.params.id);
@@ -148,6 +165,13 @@ router.get("/:id", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+// 🌐 CUSTOMER ENDPOINTS (with translation)
+// GET SINGLE BUSINESS FOR CUSTOMER (with translation)
+router.get("/customer/:businessId", auth("customer"), getBusinessForCustomer);
+
+// GET MULTIPLE BUSINESSES FOR CUSTOMER (with translation)
+router.get("/customer/search", auth("customer"), getBusinessesForCustomer);
 
 // SEARCH BUSINESSES BY LOCATION NAME (e.g., "Sukhsagar", "Koramangala")
 router.get("/search/location/:locationName", async (req, res) => {

@@ -208,6 +208,7 @@ export default function CustomerHome() {
                     <BusinessCardImage 
                       businessType={business.businessType}
                       businessName={business.businessName}
+                      businessId={business._id}
                       priority={index < 2}
                     />
                     <CardContent className="p-4">
@@ -265,6 +266,7 @@ export default function CustomerHome() {
                     <BusinessCardImage 
                       businessType={business.businessType}
                       businessName={business.businessName}
+                      businessId={business._id}
                       priority={index < 3} // Prioritize loading for first 3 images
                     />
                     

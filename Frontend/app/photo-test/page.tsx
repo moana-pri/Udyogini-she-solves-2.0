@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BusinessCardImage } from "@/components/ui/business-card-image";
-import { getBusinessTypePhoto } from "@/lib/business-type-photos";
+import { getBusinessTypePhoto } from "@/lib/businessTypePhotos";
 
 const testBusinessTypes = [
   "Tailoring",

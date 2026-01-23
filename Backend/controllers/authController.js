@@ -75,6 +75,12 @@ export const registerBusiness = async (req, res) => {
 
     console.log("✅ User created:", user._id, "Name:", fullName);
 
+    // Validate coordinates
+    if (!latitude || !longitude) {
+      console.log("❌ Missing latitude or longitude");
+      return res.status(400).json({ message: "Location coordinates are required" });
+    }
+
     const business = await Business.create({
       ownerId: user._id,
       businessName, // Business/shop name - should be different from owner's name
@@ -82,7 +88,7 @@ export const registerBusiness = async (req, res) => {
       location: {
         address: location,
         type: 'Point',
-        coordinates: longitude && latitude ? [longitude, latitude] : null, // [lng, lat]
+        coordinates: [longitude, latitude], // [lng, lat] for GeoJSON
       },
       workingHours,
       priceRange,
@@ -91,8 +97,7 @@ export const registerBusiness = async (req, res) => {
     });
 
     console.log("✅ Business created:", business._id, "Business Name:", businessName);
-
-    console.log("✅ Business created:", business._id);
+    console.log("📍 Location stored - Address:", location, "Coordinates:", { lat: latitude, lng: longitude });
 
     res.status(201).json({ 
       message: "Business registered, pending approval",

@@ -36,9 +36,19 @@ const bookingSchema = new mongoose.Schema(
     businessName: String,
     businessPhone: String,
     declinedReason: String,
+    declinedAt: Date,
     reviewed: {
       type: Boolean,
       default: false,
+    },
+    amountReceived: {
+      type: Number,
+      default: 0,
+      description: "Amount received from customer when booking is completed"
+    },
+    completedAt: {
+      type: Date,
+      description: "Timestamp when booking was marked as completed"
     },
   },
   { timestamps: true }

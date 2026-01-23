@@ -291,8 +291,11 @@ export default function CustomerBookingsPage() {
   }
 
   const handleWhatsApp = (phone: string) => {
-    const cleanPhone = phone.replace(/\D/g, "")
-    const whatsappLink = `https://wa.me/${cleanPhone}`
+    let formattedPhone = phone.replace(/\s/g, "").replace(/[^\d+]/g, "")
+    if (!formattedPhone.startsWith("+")) {
+      formattedPhone = "+91" + formattedPhone
+    }
+    const whatsappLink = `https://wa.me/${formattedPhone}`
     window.open(whatsappLink, "_blank")
   }
 

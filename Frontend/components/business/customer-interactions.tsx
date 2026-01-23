@@ -91,8 +91,16 @@ export function CustomerInteractions() {
   }
 
   const handleWhatsApp = (phone: string, name: string) => {
+    // Format phone number for WhatsApp: remove spaces and special characters, add country code if missing
+    let formattedPhone = phone.replace(/\s/g, "").replace(/[^\d+]/g, "");
+    
+    // Add country code (+91 for India) if not present
+    if (!formattedPhone.startsWith("+")) {
+      formattedPhone = "+91" + formattedPhone;
+    }
+    
     const message = encodeURIComponent(`Hi ${name}! This is Priya from Priya's Beauty Parlour. How can I help you today?`)
-    window.open(`https://wa.me/${phone.replace(/\s/g, "")}?text=${message}`, "_blank")
+    window.open(`https://wa.me/${formattedPhone}?text=${message}`, "_blank")
   }
 
   return (

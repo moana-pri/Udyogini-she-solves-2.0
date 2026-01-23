@@ -7,11 +7,11 @@ import bcrypt from "bcryptjs"
 dotenv.config()
 
 const sampleBusinesses = [
-  // Beauty Parlour (10)
+  // Beauty Parlour (10) - Distributed across Pune with multiple near PCCOE
   {
     businessName: "Priya's Beauty Parlour",
     businessType: "Beauty Parlour",
-    location: { address: "Sukhsagar Nagar Lane 10, Kondhawa Budruk, Pune, MH-411046", coordinates: [73.8435, 18.4763] },
+    location: { address: "Apte Road, Nigdi, Pune, MH-411044", lat: 18.6312, lng: 73.7978 },
     phone: "9876543210",
     workingHours: "9 AM - 7 PM",
     priceRange: "₹200-₹800",
@@ -20,7 +20,7 @@ const sampleBusinesses = [
   {
     businessName: "Shiny Salon & Spa",
     businessType: "Beauty Parlour",
-    location: { address: "Bibwewadi, Pune, MH-411037", coordinates: [73.8234, 18.4567] },
+    location: { address: "Chikhali, PCMC, Pune, MH-411062", lat: 18.6201, lng: 73.8045 },
     phone: "9876543211",
     workingHours: "10 AM - 8 PM",
     priceRange: "₹300-₹900",
@@ -29,7 +29,7 @@ const sampleBusinesses = [
   {
     businessName: "Glow Studio",
     businessType: "Beauty Parlour",
-    location: { address: "Kothrud, Pune, MH-411038", coordinates: [73.8167, 18.5245] },
+    location: { address: "Ravet, PCMC, Pune, MH-411044", lat: 18.6421, lng: 73.7823 },
     phone: "9876543212",
     workingHours: "9 AM - 7 PM",
     priceRange: "₹250-₹700",
@@ -38,7 +38,7 @@ const sampleBusinesses = [
   {
     businessName: "Beauty Haven",
     businessType: "Beauty Parlour",
-    location: { address: "Aundh, Pune, MH-411007", coordinates: [73.8018, 18.5634] },
+    location: { address: "Akurdi, Pune, MH-411035", lat: 18.6359, lng: 73.7997 },
     phone: "9876543213",
     workingHours: "10 AM - 8 PM",
     priceRange: "₹200-₹750",
@@ -47,7 +47,7 @@ const sampleBusinesses = [
   {
     businessName: "Radiance Beauty Center",
     businessType: "Beauty Parlour",
-    location: { address: "Hinjewadi, Pune, MH-411057", coordinates: [73.7321, 18.5912] },
+    location: { address: "Chinchwad, Pune, MH-411033", lat: 18.6298, lng: 73.7945 },
     phone: "9876543214",
     workingHours: "9 AM - 7 PM",
     priceRange: "₹300-₹800",
@@ -56,7 +56,7 @@ const sampleBusinesses = [
   {
     businessName: "Luxe Aesthetics",
     businessType: "Beauty Parlour",
-    location: { address: "Viman Nagar, Pune, MH-411014", coordinates: [73.8856, 18.5731] },
+    location: { address: "Koregaon Park, Pune, MH-411001", lat: 18.5412, lng: 73.8756 },
     phone: "9876543215",
     workingHours: "10 AM - 8 PM",
     priceRange: "₹400-₹1000",
@@ -65,7 +65,7 @@ const sampleBusinesses = [
   {
     businessName: "Petal Beauty Studio",
     businessType: "Beauty Parlour",
-    location: { address: "Baner, Pune, MH-411045", coordinates: [73.7768, 18.5620] },
+    location: { address: "Kothrud, Pune, MH-411038", lat: 18.5245, lng: 73.8167 },
     phone: "9876543216",
     workingHours: "9 AM - 7 PM",
     priceRange: "₹250-₹700",
@@ -74,7 +74,7 @@ const sampleBusinesses = [
   {
     businessName: "Sparkle Salon",
     businessType: "Beauty Parlour",
-    location: { address: "Katraj, Pune, MH-411046", coordinates: [73.8456, 18.3892] },
+    location: { address: "Katraj, Pune, MH-411046", lat: 18.3892, lng: 73.8456 },
     phone: "9876543217",
     workingHours: "10 AM - 8 PM",
     priceRange: "₹200-₹600",
@@ -83,7 +83,7 @@ const sampleBusinesses = [
   {
     businessName: "Glow & Shine",
     businessType: "Beauty Parlour",
-    location: { address: "Deccan, Pune, MH-411004", coordinates: [73.8323, 18.5246] },
+    location: { address: "Deccan, Pune, MH-411004", lat: 18.5246, lng: 73.8323 },
     phone: "9876543218",
     workingHours: "9 AM - 7 PM",
     priceRange: "₹300-₹850",
@@ -92,18 +92,18 @@ const sampleBusinesses = [
   {
     businessName: "Masha's Beauty Lounge",
     businessType: "Beauty Parlour",
-    location: { address: "Yerawada, Pune, MH-411006", coordinates: [73.8934, 18.5841] },
+    location: { address: "Yerawada, Pune, MH-411006", lat: 18.5841, lng: 73.8934 },
     phone: "9876543219",
     workingHours: "10 AM - 8 PM",
     priceRange: "₹280-₹750",
     description: "Personalized beauty solutions",
   },
 
-  // Tailoring & Fashion (10)
+  // Tailoring & Fashion (10) - Distributed with focus near PCCOE
   {
     businessName: "Lakshmi Tailors",
     businessType: "Tailoring & Fashion",
-    location: { address: "Camp, Pune, MH-411001", coordinates: [73.8567, 18.5204] },
+    location: { address: "Punawale, Pune, MH-411033", lat: 18.6378, lng: 73.7834 },
     phone: "9876543220",
     workingHours: "9 AM - 6 PM",
     priceRange: "₹500+",
@@ -112,7 +112,7 @@ const sampleBusinesses = [
   {
     businessName: "Stitches & Style",
     businessType: "Tailoring & Fashion",
-    location: { address: "FC Road, Pune, MH-411004", coordinates: [73.8234, 18.5349] },
+    location: { address: "Wakad, Pune, MH-411057", lat: 18.5923, lng: 73.8012 },
     phone: "9876543221",
     workingHours: "10 AM - 7 PM",
     priceRange: "₹600+",
@@ -121,7 +121,7 @@ const sampleBusinesses = [
   {
     businessName: "Designer Threads",
     businessType: "Tailoring & Fashion",
-    location: { address: "Market Yard, Pune, MH-411037", coordinates: [73.8456, 18.4823] },
+    location: { address: "Hinjewadi, Pune, MH-411057", lat: 18.5912, lng: 73.7321 },
     phone: "9876543222",
     workingHours: "9 AM - 6 PM",
     priceRange: "₹800+",
@@ -130,7 +130,7 @@ const sampleBusinesses = [
   {
     businessName: "Priya's Tailoring Studio",
     businessType: "Tailoring & Fashion",
-    location: { address: "Peth, Pune, MH-411030", coordinates: [73.8723, 18.5156] },
+    location: { address: "Nigdi Junction, Pune, MH-411044", lat: 18.6289, lng: 73.8023 },
     phone: "9876543223",
     workingHours: "10 AM - 7 PM",
     priceRange: "₹500+",
@@ -139,7 +139,7 @@ const sampleBusinesses = [
   {
     businessName: "Elite Fashion Tailors",
     businessType: "Tailoring & Fashion",
-    location: { address: "Pashan, Pune, MH-411021", coordinates: [73.7923, 18.5789] },
+    location: { address: "Bhusari Colony, Akurdi, Pune, MH-411035", lat: 18.6312, lng: 73.8156 },
     phone: "9876543224",
     workingHours: "9 AM - 6 PM",
     priceRange: "₹700+",
@@ -148,7 +148,7 @@ const sampleBusinesses = [
   {
     businessName: "Elegant Stitches",
     businessType: "Tailoring & Fashion",
-    location: { address: "Dhanori, Pune, MH-411015", coordinates: [73.9123, 18.5892] },
+    location: { address: "Aundh, Pune, MH-411007", lat: 18.5634, lng: 73.8018 },
     phone: "9876543225",
     workingHours: "10 AM - 7 PM",
     priceRange: "₹600+",
@@ -157,7 +157,7 @@ const sampleBusinesses = [
   {
     businessName: "Style Couture",
     businessType: "Tailoring & Fashion",
-    location: { address: "Bavdhan, Pune, MH-411021", coordinates: [73.7845, 18.5234] },
+    location: { address: "Camp, Pune, MH-411001", lat: 18.5204, lng: 73.8567 },
     phone: "9876543226",
     workingHours: "9 AM - 6 PM",
     priceRange: "₹900+",
@@ -166,7 +166,7 @@ const sampleBusinesses = [
   {
     businessName: "Artisan Tailors",
     businessType: "Tailoring & Fashion",
-    location: { address: "Wakad, Pune, MH-411057", coordinates: [73.8012, 18.5923] },
+    location: { address: "FC Road, Pune, MH-411004", lat: 18.5349, lng: 73.8234 },
     phone: "9876543227",
     workingHours: "10 AM - 7 PM",
     priceRange: "₹550+",
@@ -175,7 +175,7 @@ const sampleBusinesses = [
   {
     businessName: "Trend Setters Tailor",
     businessType: "Tailoring & Fashion",
-    location: { address: "Hadapsar, Pune, MH-411028", coordinates: [73.9234, 18.4456] },
+    location: { address: "Hadapsar, Pune, MH-411028", lat: 18.4456, lng: 73.9234 },
     phone: "9876543228",
     workingHours: "9 AM - 6 PM",
     priceRange: "₹650+",
@@ -184,18 +184,18 @@ const sampleBusinesses = [
   {
     businessName: "Traditional Stitches",
     businessType: "Tailoring & Fashion",
-    location: { address: "Mundhwa, Pune, MH-411036", coordinates: [73.8923, 18.4678] },
+    location: { address: "Viman Nagar, Pune, MH-411014", lat: 18.5731, lng: 73.8856 },
     phone: "9876543229",
     workingHours: "10 AM - 7 PM",
     priceRange: "₹500+",
     description: "Traditional ethnic wear tailoring",
   },
 
-  // Mehendi Art (10)
+  // Mehendi Art (10) - Distributed across Pune
   {
     businessName: "Ayesha Mehendi Art",
     businessType: "Mehendi Art",
-    location: { address: "Andheri, Pune, MH-411001", coordinates: [73.8234, 18.5678] },
+    location: { address: "Chinchwad Market, Pune, MH-411033", lat: 18.6298, lng: 73.7980 },
     phone: "9876543230",
     workingHours: "10 AM - 10 PM",
     priceRange: "₹1500+",
@@ -204,7 +204,7 @@ const sampleBusinesses = [
   {
     businessName: "Henna Studio",
     businessType: "Mehendi Art",
-    location: { address: "Sinhagad Road, Pune, MH-411051", coordinates: [73.7623, 18.3421] },
+    location: { address: "Ravet Center, Pune, MH-411044", lat: 18.6418, lng: 73.7803 },
     phone: "9876543231",
     workingHours: "10 AM - 9 PM",
     priceRange: "₹1000+",
@@ -213,7 +213,7 @@ const sampleBusinesses = [
   {
     businessName: "Mehendi Magic",
     businessType: "Mehendi Art",
-    location: { address: "Karvenagar, Pune, MH-411052", coordinates: [73.8234, 18.3567] },
+    location: { address: "Nigdi Main Road, Pune, MH-411044", lat: 18.6312, lng: 73.8001 },
     phone: "9876543232",
     workingHours: "11 AM - 10 PM",
     priceRange: "₹1200+",
@@ -222,7 +222,7 @@ const sampleBusinesses = [
   {
     businessName: "Natural Mehendi Lounge",
     businessType: "Mehendi Art",
-    location: { address: "Fatima Nagar, Pune, MH-411053", coordinates: [73.8567, 18.3812] },
+    location: { address: "Akurdi, Pune, MH-411035", lat: 18.6359, lng: 73.8089 },
     phone: "9876543233",
     workingHours: "10 AM - 9 PM",
     priceRange: "₹1100+",
@@ -231,7 +231,7 @@ const sampleBusinesses = [
   {
     businessName: "Bridal Mehendi Center",
     businessType: "Mehendi Art",
-    location: { address: "Dhayari, Pune, MH-411041", coordinates: [73.7834, 18.3245] },
+    location: { address: "Dhayari, Pune, MH-411041", lat: 18.3245, lng: 73.7834 },
     phone: "9876543234",
     workingHours: "10 AM - 10 PM",
     priceRange: "₹2000+",
@@ -240,7 +240,7 @@ const sampleBusinesses = [
   {
     businessName: "Artistry Mehendi",
     businessType: "Mehendi Art",
-    location: { address: "Khand, Pune, MH-411048", coordinates: [73.8456, 18.3923] },
+    location: { address: "Sinhagad Road, Pune, MH-411051", lat: 18.3421, lng: 73.7623 },
     phone: "9876543235",
     workingHours: "11 AM - 10 PM",
     priceRange: "₹1400+",
@@ -249,7 +249,7 @@ const sampleBusinesses = [
   {
     businessName: "Shri Mehendi Studio",
     businessType: "Mehendi Art",
-    location: { address: "Yavat, Pune, MH-412216", coordinates: [73.7923, 18.2834] },
+    location: { address: "Pashan, Pune, MH-411021", lat: 18.5789, lng: 73.7923 },
     phone: "9876543236",
     workingHours: "10 AM - 9 PM",
     priceRange: "₹1300+",
@@ -258,7 +258,7 @@ const sampleBusinesses = [
   {
     businessName: "Golden Hands Mehendi",
     businessType: "Mehendi Art",
-    location: { address: "Pune City, Pune, MH-411043", coordinates: [73.8789, 18.3456] },
+    location: { address: "Koregaon Park, Pune, MH-411001", lat: 18.5412, lng: 73.8612 },
     phone: "9876543237",
     workingHours: "10 AM - 10 PM",
     priceRange: "₹1600+",
@@ -267,7 +267,7 @@ const sampleBusinesses = [
   {
     businessName: "Festival Mehendi Design",
     businessType: "Mehendi Art",
-    location: { address: "Uruli Kanchan, Pune, MH-412202", coordinates: [73.9123, 18.2234] },
+    location: { address: "Baner, Pune, MH-411045", lat: 18.5620, lng: 73.7768 },
     phone: "9876543238",
     workingHours: "11 AM - 9 PM",
     priceRange: "₹1000+",
@@ -276,14 +276,14 @@ const sampleBusinesses = [
   {
     businessName: "Professional Mehendi Artist",
     businessType: "Mehendi Art",
-    location: { address: "Pimpri, Pune, MH-411018", coordinates: [73.7654, 18.6312] },
+    location: { address: "Pimpri, Pune, MH-411018", lat: 18.6312, lng: 73.7654 },
     phone: "9876543239",
     workingHours: "10 AM - 10 PM",
     priceRange: "₹1200+",
     description: "Certified professional mehendi services",
   },
 
-  // Handicrafts & Jewelry (10)
+  // Handicrafts & Jewelry (10) - Distributed with PCCOE area focus
   {
     businessName: "Artisan Jewelry",
     businessType: "Handicrafts & Jewelry",
@@ -305,7 +305,7 @@ const sampleBusinesses = [
   {
     businessName: "Golden Crafts",
     businessType: "Handicrafts & Jewelry",
-    location: { address: "Ravivar Peth, Pune, MH-411002", lat: 18.5234, lng: 73.8567 },
+    location: { address: "Chinchwad Bazzar, Pune, MH-411033", lat: 18.6298, lng: 73.7867 },
     phone: "9876543242",
     workingHours: "11 AM - 7 PM",
     priceRange: "₹1500+",
@@ -314,7 +314,7 @@ const sampleBusinesses = [
   {
     businessName: "Ethnic Treasures",
     businessType: "Handicrafts & Jewelry",
-    location: { address: "Chowk, Pune, MH-411002", lat: 18.5189, lng: 73.8489 },
+    location: { address: "Nigdi Shopping Center, Pune, MH-411044", lat: 18.6312, lng: 73.8056 },
     phone: "9876543243",
     workingHours: "10 AM - 7 PM",
     priceRange: "₹900+",
@@ -323,7 +323,7 @@ const sampleBusinesses = [
   {
     businessName: "Artisan's Paradise",
     businessType: "Handicrafts & Jewelry",
-    location: { address: "Budhwar Peth, Pune, MH-411002", lat: 18.5234, lng: 73.8312 },
+    location: { address: "Akurdi Market, Pune, MH-411035", lat: 18.6359, lng: 73.8023 },
     phone: "9876543244",
     workingHours: "10 AM - 8 PM",
     priceRange: "₹1200+",
@@ -332,7 +332,7 @@ const sampleBusinesses = [
   {
     businessName: "Precious Moments Jewelry",
     businessType: "Handicrafts & Jewelry",
-    location: { address: "Mandai, Pune, MH-411001", lat: 18.5156, lng: 73.8234 },
+    location: { address: "Ravet Main Road, Pune, MH-411044", lat: 18.6421, lng: 73.7923 },
     phone: "9876543245",
     workingHours: "11 AM - 7 PM",
     priceRange: "₹2000+",
@@ -350,7 +350,7 @@ const sampleBusinesses = [
   {
     businessName: "Heritage Designs",
     businessType: "Handicrafts & Jewelry",
-    location: { address: "Hari Om Nagar, Pune, MH-411031", lat: 18.5234, lng: 73.8645 },
+    location: { address: "Kondhawa Budruk, Pune, MH-411046", lat: 18.4763, lng: 73.8435 },
     phone: "9876543247",
     workingHours: "10 AM - 8 PM",
     priceRange: "₹1300+",
@@ -359,7 +359,7 @@ const sampleBusinesses = [
   {
     businessName: "Craftwork Studio",
     businessType: "Handicrafts & Jewelry",
-    location: { address: "Vinayak Nagar, Pune, MH-411031", lat: 18.5189, lng: 73.8512 },
+    location: { address: "Punawale, Pune, MH-411033", lat: 18.6378, lng: 73.7956 },
     phone: "9876543248",
     workingHours: "11 AM - 7 PM",
     priceRange: "₹950+",
@@ -368,7 +368,7 @@ const sampleBusinesses = [
   {
     businessName: "Bead Art & Jewelry",
     businessType: "Handicrafts & Jewelry",
-    location: { address: "Opp. Patil Market, Pune, MH-411031", lat: 18.5145, lng: 73.8423 },
+    location: { address: "Market Yard, Pune, MH-411037", lat: 18.4823, lng: 73.8456 },
     phone: "9876543249",
     workingHours: "10 AM - 7 PM",
     priceRange: "₹800+",

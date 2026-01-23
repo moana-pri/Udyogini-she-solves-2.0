@@ -256,16 +256,25 @@ export default function CustomerDashboard() {
   }, [])
 
 
-  const handleSearch = async (serviceType: string, location: string) => {
+  const handleSearch = async (serviceType: string, location: string, lat?: number, lng?: number, radius: number = 15) => {
     let results: any[] = []
     
-    // Handle nearby location search
-    if (location.startsWith("nearby:")) {
-      const [lat, lng] = location.split(":")[1].split(",")
+    // Handle nearby location search with coordinates
+    if ((lat && lng) || location.startsWith("nearby:")) {
+      let searchLat = lat
+      let searchLng = lng
+      
+      // Parse nearby format if coordinates not provided
+      if (!lat || !lng) {
+        const [parsedLat, parsedLng] = location.split(":")[1].split(",")
+        searchLat = parseFloat(parsedLat)
+        searchLng = parseFloat(parsedLng)
+      }
+      
       const params = new URLSearchParams()
-      params.append("lat", lat)
-      params.append("lng", lng)
-      params.append("radius", "25")
+      params.append("lat", searchLat.toString())
+      params.append("lng", searchLng.toString())
+      params.append("radius", radius.toString()) // Use 15km radius
       
       try {
         const response = await fetch(
@@ -296,10 +305,10 @@ export default function CustomerDashboard() {
       if (serviceType && serviceType !== "all") {
         const typeMap: Record<string, string> = {
           "beauty-parlour": "Beauty Parlour",
-          "tailoring": "Tailoring",
+          "tailoring": "Tailoring & Fashion",
           "food": "Home Food",
           "mehendi": "Mehendi Art",
-          "handicrafts": "Handicrafts",
+          "handicrafts": "Handicrafts & Jewelry",
           "wellness": "Wellness",
         }
         results = results.filter((b) => b.type === typeMap[serviceType])

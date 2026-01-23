@@ -15,6 +15,12 @@ const businessSchema = new mongoose.Schema({
     required: true
   },
   description: String,
+  language: {
+    type: String,
+    default: "en",
+    enum: ["en", "hi", "mr", "te", "ta", "kn", "ml", "gu", "bn", "pa", "es", "fr", "de", "pt", "ru", "ja", "zh", "ar", "it", "ko"],
+    description: "Language code in which business details are entered by owner"
+  },
   businessImage: String,
   location: {
     address: { type: String },

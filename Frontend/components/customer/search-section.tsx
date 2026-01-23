@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent } from "@/components/ui/card"
-import { Search, MapPin, Navigation } from "lucide-react"
+import { Search, MapPin, Navigation, Loader2 } from "lucide-react"
+import { geocodeAddress } from "@/lib/geolocation"
 
 const serviceTypes = [
   { value: "all", label: "All Services" },
@@ -20,7 +21,7 @@ const serviceTypes = [
 ]
 
 interface SearchSectionProps {
-  onSearch: (serviceType: string, location: string) => void
+  onSearch: (serviceType: string, location: string, lat?: number, lng?: number, radius?: number) => void
 }
 
 export function SearchSection({ onSearch }: SearchSectionProps) {
@@ -28,8 +29,23 @@ export function SearchSection({ onSearch }: SearchSectionProps) {
   const [location, setLocation] = useState("")
   const [isLoadingLocation, setIsLoadingLocation] = useState(false)
 
-  const handleSearch = () => {
-    onSearch(serviceType, location)
+  const handleSearch = async () => {
+    // If location is typed (not current location), geocode it
+    if (location && !location.includes("Near You")) {
+      setIsLoadingLocation(true)
+      try {
+        const geocoded = await geocodeAddress(location)
+        // Use 10-15km radius for typed locations
+        onSearch(serviceType, location, geocoded.lat, geocoded.lng, 15)
+      } catch (error) {
+        console.error("Error geocoding address:", error)
+        alert("Could not find the location. Please try again.")
+      } finally {
+        setIsLoadingLocation(false)
+      }
+    } else {
+      onSearch(serviceType, location)
+    }
   }
 
   const handleNearbySearch = async () => {
@@ -41,20 +57,9 @@ export function SearchSection({ onSearch }: SearchSectionProps) {
             const lat = position.coords.latitude
             const lng = position.coords.longitude
             
-            // Fetch nearby businesses from API
-            const params = new URLSearchParams()
-            params.append("lat", lat.toString())
-            params.append("lng", lng.toString())
-            params.append("radius", "25")
-            
-            const response = await fetch(
-              `${process.env.NEXT_PUBLIC_API_URL}/api/business/nearby?${params}`
-            )
-            const businesses = await response.json()
-            
-            // Store results and trigger callback
-            setLocation(`Near You (${businesses.length} services found)`)
-            onSearch(serviceType, `nearby:${lat},${lng}`)
+            // Use 15km radius for current location
+            setLocation(`Near You`)
+            onSearch(serviceType, `nearby:${lat},${lng}`, lat, lng, 15)
             setIsLoadingLocation(false)
           },
           () => {
@@ -104,9 +109,10 @@ export function SearchSection({ onSearch }: SearchSectionProps) {
               <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Enter location"
+                placeholder="Enter location (e.g., Nigadi, Pune)"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
+                disabled={isLoadingLocation}
                 className="h-12 rounded-xl bg-card pl-10"
               />
             </div>
@@ -115,9 +121,14 @@ export function SearchSection({ onSearch }: SearchSectionProps) {
           <div className="flex gap-2">
             <Button 
               onClick={handleSearch}
-              className="h-12 flex-1 rounded-xl bg-primary px-6 text-primary-foreground hover:bg-primary/90 md:flex-none"
+              disabled={isLoadingLocation}
+              className="h-12 flex-1 rounded-xl bg-primary px-6 text-primary-foreground hover:bg-primary/90 disabled:opacity-50 md:flex-none"
             >
-              <Search className="mr-2 h-4 w-4" />
+              {isLoadingLocation ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Search className="mr-2 h-4 w-4" />
+              )}
               Search
             </Button>
             <Button 
@@ -126,7 +137,11 @@ export function SearchSection({ onSearch }: SearchSectionProps) {
               variant="outline"
               className="h-12 rounded-xl border-primary bg-transparent text-primary hover:bg-primary hover:text-primary-foreground disabled:opacity-50"
             >
-              <Navigation className="mr-2 h-4 w-4" />
+              {isLoadingLocation ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Navigation className="mr-2 h-4 w-4" />
+              )}
               <span className="hidden sm:inline">{isLoadingLocation ? "Getting location..." : "Nearby"}</span>
             </Button>
           </div>

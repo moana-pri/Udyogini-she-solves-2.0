@@ -205,16 +205,20 @@ export default function BusinessRegistrationPage() {
                 />
 
                 <div className="space-y-2">
-                  <Label htmlFor="location">Location <span className="text-primary">*</span></Label>
+                  <Label htmlFor="location">Business Address (Auto-filled from location)</Label>
                   <Input
                     id="location"
                     type="text"
-                    placeholder="Your business location / area"
+                    placeholder="Your business location will auto-populate from the map selection above"
                     value={form.location}
                     onChange={(e) => setForm({ ...form, location: e.target.value })}
-                    className="rounded-lg"
+                    className="rounded-lg bg-gray-50"
                     required
+                    readOnly
                   />
+                  <p className="text-xs text-muted-foreground">
+                    💡 This field auto-fills from your selected location. Edit the search box above to change it.
+                  </p>
                 </div>
 
                 <div className="grid gap-4 sm:grid-cols-2">
