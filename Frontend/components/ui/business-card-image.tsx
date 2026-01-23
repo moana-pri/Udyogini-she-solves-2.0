@@ -5,6 +5,7 @@ import { useState } from "react";
 import { getBusinessTypePhoto } from "@/lib/businessTypePhotos";
 import { Building2, Loader2 } from "lucide-react";
 
+
 interface BusinessCardImageProps {
   businessType: string;
   businessName: string;

@@ -41,8 +41,12 @@ export const alternativeImages: Record<string, string[]> = {
 };
 
 export function getBusinessTypePhoto(type?: string, businessId?: string | number) {
+  // Returns an object with `photoUrl` and `altText` to match component expectations
   if (!type) {
-    return "/images/business-types/tailoring.jpg";
+    return {
+      photoUrl: "/images/business-types/tailoring.jpg",
+      altText: "Business image"
+    };
   }
 
   // Normalize the type: lowercase, replace & with 'and', replace spaces with hyphens
@@ -103,12 +107,29 @@ export function getBusinessTypePhoto(type?: string, businessId?: string | number
   }
 
   // If businessId is provided and we have alternative images, rotate through them
+  let selectedImage = baseImage;
   if (businessId && alternativeImages[normalizedKey]) {
     const alternatives = alternativeImages[normalizedKey];
-    // Use businessId to deterministically select an image
     const hash = String(businessId).split("").reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return alternatives[hash % alternatives.length];
+    selectedImage = alternatives[hash % alternatives.length];
   }
 
-  return baseImage;
+  return {
+    photoUrl: selectedImage,
+    altText: `${type} business`
+  };
+}
+
+export function getPlaceholderPhoto() {
+  return {
+    photoUrl: "/images/business-types/default-business.jpg",
+    altText: "Placeholder business image"
+  };
+}
+
+export function getDefaultBusinessPhoto() {
+  return {
+    photoUrl: "/images/business-types/default-business.jpg",
+    altText: "Default business image"
+  };
 }

@@ -123,11 +123,10 @@ export function BusinessCard({ business, isFavorite: initialFavorite = false }: 
     <Card className="group overflow-hidden border-border/50 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
       <div className="relative aspect-[4/3] overflow-hidden bg-gray-200">
         <Image
-          src={getBusinessTypePhoto(business.businessType, business._id || business.id)}
+          src={getBusinessTypePhoto(business.businessType, business._id || business.id)?.photoUrl || "/images/business-types/default-business.jpg"}
           alt={
-            business.businessType
-              ? `${business.businessType} business`
-              : "Business service image"
+            getBusinessTypePhoto(business.businessType, business._id || business.id)?.altText ||
+            (business.businessType ? `${business.businessType} business` : "Business service image")
           }
           width={400}
           height={300}
